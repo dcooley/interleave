@@ -6,9 +6,9 @@
 
 namespace Rcpp {
 
-template < typename T, std::size_t S > SEXP wrap( std::array< T, S >& Point );
-template < typename T, std::size_t S > SEXP wrap( std::vector< std::array< T, S > >& Polygon );
-template < typename T, std::size_t S > SEXP wrap( std::vector< std::vector< std::array< T, S > > >& Polygons );
+template < typename T, std::size_t S > SEXP wrap( const std::array< T, S >& Point );
+template < typename T, std::size_t S > SEXP wrap( const std::vector< std::array< T, S > >& Polygon );
+template < typename T, std::size_t S > SEXP wrap( const std::vector< std::vector< std::array< T, S > > >& Polygons );
 
 namespace traits {
 
@@ -24,7 +24,7 @@ template < typename T, std::size_t S > class Exporter< std::vector< std::vector<
 namespace Rcpp {
 
 template <typename T, std::size_t S >
-SEXP wrap( std::array< T, S >& Point ) {
+SEXP wrap( const std::array< T, S >& Point ) {
   Rcpp::NumericVector v( S );
   std::size_t i;
   for( i = 0; i < S; ++i ) {
@@ -34,7 +34,7 @@ SEXP wrap( std::array< T, S >& Point ) {
 }
 
 template < typename T, std::size_t S >
-SEXP wrap( std::vector< std::array< T, S > >& Polygon ) {
+SEXP wrap( const std::vector< std::array< T, S > >& Polygon ) {
   R_xlen_t n = Polygon.size();
   Rcpp::NumericMatrix mat( n, S );
   R_xlen_t i;
@@ -47,7 +47,7 @@ SEXP wrap( std::vector< std::array< T, S > >& Polygon ) {
 }
 
 template < typename T, std::size_t S >
-SEXP wrap( std::vector< std::vector< std::array< T, S > > >& Polygons ) {
+SEXP wrap( const std::vector< std::vector< std::array< T, S > > >& Polygons ) {
   R_xlen_t n = Polygons.size();
   Rcpp::List lst( n );
   R_xlen_t i;
@@ -79,7 +79,7 @@ public:
       Rcpp::stop("interleave - each point in the polygon must have the correct size");
     }
     //Point x({ vec[0], vec[1] });
-    Point x(S);
+    Point x;
     std::size_t i;
     for( i = 0; i < S; ++i ) {
       x[i] = vec[i];
@@ -144,16 +144,16 @@ public:
 
 #include "interleave/earcut/earcut.hpp"
 
-using Coord = double;
-
-template< size_t S>
-using Point = std::array< Coord, S >;
-
-template< typename Point >
-using Polygon = std::vector< Point >;
-
-template< typename Polygon >
-using Polygons = std::vector< Polygon >;
+// using Coord = double;
+//
+// template< size_t S>
+// using Point = std::array< Coord, S >;
+//
+// template< typename Point >
+// using Polygon = std::vector< Point >;
+//
+// template< typename Polygon >
+// using Polygons = std::vector< Polygon >;
 
 namespace interleave {
 namespace earcut {
@@ -162,12 +162,20 @@ inline Rcpp::NumericVector earcut(
     SEXP& polygon
 ) {
 
+
+  //const std::size_t stride = 2;
+  //using stride = std::size_t;
+  constexpr std::size_t stride = 2;
+  using Coord = double;
+  using Point = std::array< Coord, stride >;
+  using Polygon = std::vector< Point >;
+  using Polygons = std::vector< Polygon >;
+
   //size_t stride = 2;
-  Polygons< size_t > polyrings = Rcpp::as< Polygons< std::size_t > >( polygon );
+  Polygons polyrings = Rcpp::as< Polygons >( polygon );
   std::vector< double> coords = ::earcut::earcut< uint32_t >( polyrings );
-  return Rcpp::NumericVector::create();
-  // std::vector< double > coords = ::earcut::earcut< uint32_t >( polyrings );
-  // return Rcpp::wrap( coords );
+  return Rcpp::wrap( coords );
+  //return Rcpp::NumericVector::create();
 }
 
 } // earcut

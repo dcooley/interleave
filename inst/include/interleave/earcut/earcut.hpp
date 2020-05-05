@@ -23,7 +23,8 @@ class Earcut {
 public:
   //std::vector<N> indices;
   std::vector< double > xyzcoords;
-  int stride = 2; // interleave (can be 3)
+  //int stride = 2; // interleave (can be 3)
+
   std::size_t vertices = 0;
 
   template <typename Polygon >
@@ -132,8 +133,8 @@ private:
   ObjectPool<Node> nodes;
 };
 
-template <typename N>
-void Earcut<N>::operator()(const std::vector< std::array< double, std::size_t > >& points) {
+template <typename N > template <typename Polygon>
+void Earcut<N>::operator()(const Polygon& points) {
   // reset
   //indices.clear();
   xyzcoords.clear();
@@ -154,7 +155,7 @@ void Earcut<N>::operator()(const std::vector< std::array< double, std::size_t > 
   //estimate size of nodes and indices
   nodes.reset(len * 3 / 2);
   //indices.reserve(len + points[0].size());
-  xyzcoords.reserve( ( len + points[0].size() ) * stride );
+  xyzcoords.reserve( ( len + points[0].size() ) * 2 );
 
   Node* outerNode = linkedList(points[0], true);
   if (!outerNode || outerNode->prev == outerNode->next) return;
@@ -277,7 +278,7 @@ void Earcut<N>::earcutLinked(Node* ear, const Polygon& points, int pass) {
       // indices.emplace_back(ear->i);
       // indices.emplace_back(next->i);
       //N p_idx = prev->i;
-      N e_idx = ear->i;
+      //N e_idx = ear->i;
       //N n_idx = next->i;
 
       // Polygons points is a vector< vector< array< T, 2 > > >
