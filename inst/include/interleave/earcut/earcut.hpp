@@ -24,7 +24,7 @@ public:
   //std::vector<N> indices;
   std::vector< double > xyzcoords;
   //int stride = 2; // interleave (can be 3)
-
+  int stride;
   std::size_t vertices = 0;
 
   template <typename Polygon >
@@ -152,10 +152,18 @@ void Earcut<N>::operator()(const Polygon& points) {
     len += points[i].size();
   }
 
+  std::cout << "points[0].size() " << points[0].size() << std::endl;
+  std::cout << "points[0][0].size() " << points[0][0].size() << std::endl;
+  stride = points[0][0].size();
+
   //estimate size of nodes and indices
   nodes.reset(len * 3 / 2);
   //indices.reserve(len + points[0].size());
-  xyzcoords.reserve( ( len + points[0].size() ) * 2 );
+
+  std::size_t est = ( len + points[0].size() ) * stride;
+  std::cout << "est: " << est << std::endl;
+
+  xyzcoords.reserve( ( len + points[0].size() ) * stride );
 
   Node* outerNode = linkedList(points[0], true);
   if (!outerNode || outerNode->prev == outerNode->next) return;
@@ -202,10 +210,16 @@ Earcut<N>::linkedList(const Ring& points, const bool clockwise) {
   for (i = 0, j = len > 0 ? len - 1 : 0; i < len; j = i++) {
     const auto& p1 = points[i];
     const auto& p2 = points[j];
-    const double p20 = util::nth<0, Point>::get(p2);
-    const double p10 = util::nth<0, Point>::get(p1);
-    const double p11 = util::nth<1, Point>::get(p1);
-    const double p21 = util::nth<1, Point>::get(p2);
+    // const double p20 = util::nth<0, Point>::get(p2);
+    // const double p10 = util::nth<0, Point>::get(p1);
+    // const double p11 = util::nth<1, Point>::get(p1);
+    // const double p21 = util::nth<1, Point>::get(p2);
+
+    const double p20 = p2[0];
+    const double p10 = p1[0];
+    const double p11 = p1[1];
+    const double p21 = p2[1];
+
     sum += (p20 - p10) * (p11 + p21);
   }
 
@@ -277,34 +291,49 @@ void Earcut<N>::earcutLinked(Node* ear, const Polygon& points, int pass) {
       // indices.emplace_back(prev->i);
       // indices.emplace_back(ear->i);
       // indices.emplace_back(next->i);
-      //N p_idx = prev->i;
-      //N e_idx = ear->i;
-      //N n_idx = next->i;
+      N p_idx = prev->i;
+      N e_idx = ear->i;
+      N n_idx = next->i;
 
       // Polygons points is a vector< vector< array< T, 2 > > >
       // so where is idx 0?
 
-      // std::cout << "points.size() " << points.size() << std::endl;
-      // std::vector< std::array< double, 2 > > pt = points[0];
-      // std::array< double, 2 > xy = pt[ e_idx ];
+      std::cout << "points.size() " << points.size() << std::endl;
+      std::cout << "points[0].size() " << points[0].size() << std::endl;
+      std::vector< std::vector< double > > pt = points[0];
+      std::vector< double > xy = pt[ e_idx ];
+      std::cout << "xy.size()  " << xy.size() << std::endl;
       //
-      // std::cout << "pt.size() " << pt.size() << std::endl;
-      // //std::cout << "p_idx; " << p_idx << ", e_idx: " << e_idx << ", n_idx: " << n_idx << std::endl;
+      //std::cout << "pt.size() " << pt.size() << std::endl;
+      //std::cout << "p_idx; " << p_idx << ", e_idx: " << e_idx << ", n_idx: " << n_idx << std::endl;
       // std::cout << "x: " << xy[0] << " y: " << xy[1] << std::endl;
 
+      std::vector< double > pre = pt[ p_idx ];
+      std::vector< double > cur = pt[ e_idx ];
+      std::vector< double > nxt = pt[ n_idx ];
+
+      std::size_t dim = xy.size();
+      for( std::size_t i = 0; i < dim; ++i ) {
+        xyzcoords.emplace_back( pre[i] );
+      }
+
+      for( std::size_t i = 0; i < dim; ++i ) {
+        xyzcoords.emplace_back( cur[i] );
+      }
+
+      for( std::size_t i = 0; i < dim; ++i ) {
+        xyzcoords.emplace_back( nxt[i] );
+      }
 
       //std::cout << "prev: " << points[0][p_idx] << std::endl;
-
-
-
-      xyzcoords.emplace_back(prev->x);
-      xyzcoords.emplace_back(prev->y);
-
-      xyzcoords.emplace_back(ear->x);
-      xyzcoords.emplace_back(ear->y);
-
-      xyzcoords.emplace_back(next->x);
-      xyzcoords.emplace_back(next->y);
+      // xyzcoords.emplace_back(prev->x);
+      // xyzcoords.emplace_back(prev->y);
+      //
+      // xyzcoords.emplace_back(ear->x);
+      // xyzcoords.emplace_back(ear->y);
+      //
+      // xyzcoords.emplace_back(next->x);
+      // xyzcoords.emplace_back(next->y);
 
       removeNode(ear);
 
@@ -820,7 +849,8 @@ Earcut<N>::splitPolygon(Node* a, Node* b) {
 template <typename N> template <typename Point>
 typename Earcut<N>::Node*
 Earcut<N>::insertNode(std::size_t i, const Point& pt, Node* last) {
-  Node* p = nodes.construct(static_cast<N>(i), util::nth<0, Point>::get(pt), util::nth<1, Point>::get(pt));
+  //Node* p = nodes.construct(static_cast<N>(i), util::nth<0, Point>::get(pt), util::nth<1, Point>::get(pt));
+  Node* p = nodes.construct( static_cast<N>(i), pt[0], pt[1] );
 
   if (!last) {
     p->prev = p;

@@ -6,15 +6,15 @@
 
 namespace Rcpp {
 
-template < typename T, std::size_t S > SEXP wrap( const std::array< T, S >& Point );
-template < typename T, std::size_t S > SEXP wrap( const std::vector< std::array< T, S > >& Polygon );
-template < typename T, std::size_t S > SEXP wrap( const std::vector< std::vector< std::array< T, S > > >& Polygons );
+// template < typename T > SEXP wrap( const std::vector< T >& Point );
+template < typename T > SEXP wrap( const std::vector< std::vector< T > >& Polygon );
+template < typename T > SEXP wrap( const std::vector< std::vector< std::vector< T > > >& Polygons );
 
 namespace traits {
 
-template < typename T, std::size_t S > class Exporter< std::array< T, S > >;
-template < typename T, std::size_t S > class Exporter< std::vector< std::array< T, S > > >;
-template < typename T, std::size_t S > class Exporter< std::vector< std::vector< std::array< T, S > > > >;
+// template < typename T > class Exporter< std::vector< T > >;
+template < typename T > class Exporter< std::vector< std::vector< T > > >;
+template < typename T > class Exporter< std::vector< std::vector< std::vector< T > > > >;
 
 } // traits
 } // Rcpp
@@ -23,36 +23,38 @@ template < typename T, std::size_t S > class Exporter< std::vector< std::vector<
 
 namespace Rcpp {
 
-template <typename T, std::size_t S >
-SEXP wrap( const std::array< T, S >& Point ) {
-  Rcpp::NumericVector v( S );
-  std::size_t i;
-  for( i = 0; i < S; ++i ) {
-    v[i] = Point[i];
-  }
-  return v;
-}
+// template <typename T >
+// SEXP wrap( const std::vector< T >& Point ) {
+//   R_xlen_t n = Point.size();
+//   Rcpp::NumericVector v( n );
+//   std::size_t i;
+//   for( i = 0; i < n; ++i ) {
+//     v[i] = Point[i];
+//   }
+//   return v;
+// }
 
-template < typename T, std::size_t S >
-SEXP wrap( const std::vector< std::array< T, S > >& Polygon ) {
+template < typename T >
+SEXP wrap( const std::vector< std::vector< T > >& Polygon ) {
   R_xlen_t n = Polygon.size();
-  Rcpp::NumericMatrix mat( n, S );
+  R_xlen_t col = Polygon[0].size();
+  Rcpp::NumericMatrix mat( n, col );
   R_xlen_t i;
   for( i = 0; i < n; ++i ) {
-    std::array< T, S > pt =  Polygon[ i ];
+    std::vector< T > pt =  Polygon[ i ];
     Rcpp::NumericVector nv = Rcpp::wrap( pt );
     mat( i, Rcpp::_ ) = nv;
   }
   return mat;
 }
 
-template < typename T, std::size_t S >
-SEXP wrap( const std::vector< std::vector< std::array< T, S > > >& Polygons ) {
+template < typename T >
+SEXP wrap( const std::vector< std::vector< std::vector< T > > >& Polygons ) {
   R_xlen_t n = Polygons.size();
   Rcpp::List lst( n );
   R_xlen_t i;
   for( i = 0; i < n; ++i ) {
-    std::vector< std::array< T, S > > polygon = Polygons[ i ];
+    std::vector< std::vector< T > > polygon = Polygons[ i ];
     lst[ i ] = Rcpp::wrap( polygon );
   }
   return lst;
@@ -60,38 +62,40 @@ SEXP wrap( const std::vector< std::vector< std::array< T, S > > >& Polygons ) {
 
 namespace traits {
 
-template < typename T, std::size_t S >
-class Exporter< std::array< T, S > > {
-  typedef typename std::array< T, S > Point;
+// template < typename T >
+// class Exporter< std::vector< T > > {
+//   typedef typename std::vector< T > Point;
+//
+//   const static int RTYPE = Rcpp::traits::r_sexptype_traits< T >::rtype;
+//   Rcpp::Vector< RTYPE > vec;
+//
+// public:
+//   Exporter( SEXP x ) : vec( x ) {
+//     if( TYPEOF( x ) != RTYPE ) {
+//       throw std::invalid_argument("interleave - invalid R object for creating a Point");
+//     }
+//   }
+//
+//   Point get() {
+//     R_xlen_t n = vec.size();
+//     // Rcpp::Rcout << "S: " << S << std::endl;
+//     // if( vec.length() != S ) {
+//     //   Rcpp::stop("interleave - each point in the polygon must have the correct size");
+//     // }
+//     //Point x({ vec[0], vec[1] });
+//     Point x(n);
+//     std::size_t i;
+//     for( i = 0; i < n; ++i ) {
+//       x[i] = vec[i];
+//     }
+//     return x;
+//   }
+//
+// };
 
-  const static int RTYPE = Rcpp::traits::r_sexptype_traits< T >::rtype;
-  Rcpp::Vector< RTYPE > vec;
-
-public:
-  Exporter( SEXP x ) : vec( x ) {
-    if( TYPEOF( x ) != RTYPE ) {
-      throw std::invalid_argument("interleave - invalid R object for creating a Point");
-    }
-  }
-
-  Point get() {
-    if( vec.length() != S ) {
-      Rcpp::stop("interleave - each point in the polygon must have the correct size");
-    }
-    //Point x({ vec[0], vec[1] });
-    Point x;
-    std::size_t i;
-    for( i = 0; i < S; ++i ) {
-      x[i] = vec[i];
-    }
-    return x;
-  }
-
-};
-
-template < typename T, std::size_t S >
-class Exporter< std::vector< std::array< T, S > > > {
-  typedef typename std::vector< std::array< T, S > > Polygon;
+template < typename T >
+class Exporter< std::vector< std::vector< T > > > {
+  typedef typename std::vector< std::vector< T > > Polygon;
 
   const static int RTYPE = Rcpp::traits::r_sexptype_traits< T >::rtype;
   Rcpp::Matrix< RTYPE > mat;
@@ -109,15 +113,15 @@ public:
     R_xlen_t i;
     for( i = 0; i < n_row; ++i ) {
       Rcpp::Vector< RTYPE > v = mat( i, Rcpp::_);
-      x[i] = Rcpp::as< std::array< T, S > >( v );
+      x[i] = Rcpp::as< std::vector< T > >( v );
     }
     return x;
   }
 };
 
-template< typename T, std::size_t S >
-class Exporter< std::vector< std::vector< std::array< T, S > > > > {
-  typedef typename std::vector< std::vector< std::array< T, S > > > Polygons;
+template< typename T >
+class Exporter< std::vector< std::vector< std::vector< T > > > > {
+  typedef typename std::vector< std::vector< std::vector< T > > > Polygons;
 
   const static int RTYPE = Rcpp::traits::r_sexptype_traits< T >::rtype;
   Rcpp::List lst;
@@ -133,7 +137,7 @@ public:
         Rcpp::stop("interleave - a list must only contain matrices");
       }
       Rcpp::Matrix< RTYPE > mat = lst[ i ];
-      x[i] = Rcpp::as< std::vector< std::array< T, S > > >( mat );
+      x[i] = Rcpp::as< std::vector< std::vector< T > > >( mat );
     }
     return x;
   }
@@ -156,6 +160,7 @@ public:
 // using Polygons = std::vector< Polygon >;
 
 namespace interleave {
+
 namespace earcut {
 
 inline Rcpp::NumericVector earcut(
@@ -165,13 +170,27 @@ inline Rcpp::NumericVector earcut(
 
   //const std::size_t stride = 2;
   //using stride = std::size_t;
-  constexpr std::size_t stride = 2;
-  using Coord = double;
-  using Point = std::array< Coord, stride >;
+
+  //constexpr std::size_t s = stride;
+  //using Coord = double;
+  //std::vector< double > Point( stride );
+  //using Point = std::array< Coord, stride >;
+  //using Point = std::vector< double >;
+
+  //std::unique_ptr< double[] > Point { new double[ stride ] };
+
+  //using Point = std::vector< double >;
+
+  // std::vector< double > p;
+  // p.reserve( stride );
+  //
+  // using Point = p;
+  //
+
+  using Point = std::vector< double >;
   using Polygon = std::vector< Point >;
   using Polygons = std::vector< Polygon >;
 
-  //size_t stride = 2;
   Polygons polyrings = Rcpp::as< Polygons >( polygon );
   std::vector< double> coords = ::earcut::earcut< uint32_t >( polyrings );
   return Rcpp::wrap( coords );
