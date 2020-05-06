@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
+library(interleave)
 ```
 
 # interleave
@@ -25,15 +27,15 @@ I'm building this library to be the workhorse for converting matrices (and lists
 
 ( mat1 <- matrix(1:20, ncol = 2, byrow = T) )
 
-interleave:::rcpp_interleave( mat1 )
+interleave( mat1 )
 
 ( mat2 <- matrix(20:1, ncol = 5, byrow = T) )
 
-interleave:::rcpp_interleave( mat2 )
+interleave( mat2 )
 
 lst <- list( mat1, mat2 )
 
-interleave:::rcpp_interleave( lst )
+interleave( lst )
 
 ```
 
@@ -81,7 +83,7 @@ Yeah, of course you can do that if you want. But my goal is to make these functi
 mat <- matrix(rnorm(5e6), ncol = 5, byrow = T)
 
 microbenchmark::microbenchmark(
-  leave = { interleave:::rcpp_interleave( mat ) },
+  leave = { interleave( mat ) },
   baset = { 
     mat2 <- t( mat )
     dim( mat2 ) <- NULL
@@ -95,7 +97,7 @@ mat <- matrix(1e6, ncol = 2)
 lst <- list( mat, mat, mat, mat, mat )
 
 microbenchmark::microbenchmark(
-  leave = { interleave:::rcpp_interleave( lst ) },
+  leave = { interleave( lst ) },
   baset = {
     unlist( 
       lapply(lst, function(x) {
