@@ -6,7 +6,8 @@ Authors@R: c(
         person("David", "Coole", email = "mdsumner@gmail.com", role = c("aut", "cre")), 
         person("Mapbox", role = "cph", comment = "author of header library earcut.hpp")
         )
-Description: TBC
+Description: Interleaves matrices and lists of matrices by collapsing all values into
+    a single vector.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
