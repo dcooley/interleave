@@ -29,7 +29,7 @@ interleave:::rcpp_interleave( mat1 )
 
 ( mat2 <- matrix(20:1, ncol = 5, byrow = T) )
 
-interleave:::rcpp_interleave( mat1 )
+interleave:::rcpp_interleave( mat2 )
 
 lst <- list( mat1, mat2 )
 

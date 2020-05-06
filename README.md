@@ -35,8 +35,8 @@ interleave:::rcpp_interleave( mat1 )
 > [3,]   10    9    8    7    6
 > [4,]    5    4    3    2    1
 
-interleave:::rcpp_interleave( mat1 )
->  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+interleave:::rcpp_interleave( mat2 )
+>  [1] 20 19 18 17 16 15 14 13 12 11 10  9  8  7  6  5  4  3  2  1
 
 lst <- list( mat1, mat2 )
 
@@ -110,8 +110,8 @@ microbenchmark::microbenchmark(
 )
 > Unit: milliseconds
 >   expr       min       lq     mean   median       uq      max neval
->  leave 10.873431 14.12534 22.30054 15.21598 22.57195 50.37935    25
->  baset  9.662381 10.64688 22.13448 13.73662 43.33470 54.40023    25
+>  leave 11.064320 12.30479 24.01795 15.13761 45.13415 59.43992    25
+>  baset  9.624574 11.11466 19.77588 13.93574 15.14388 49.57687    25
 
 
 
@@ -133,6 +133,6 @@ microbenchmark::microbenchmark(
 )
 > Unit: microseconds
 >   expr    min     lq      mean median     uq       max neval
->  leave  8.639  9.335  12.66092 10.883 11.497    38.637    25
->  baset 15.680 16.267 707.76928 17.776 18.425 17264.366    25
+>  leave  7.128  8.223  10.83264  9.273 10.058    34.278    25
+>  baset 13.448 14.073 639.74268 14.951 16.966 15616.489    25
 ```
