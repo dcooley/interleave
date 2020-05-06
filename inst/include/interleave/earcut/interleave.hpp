@@ -110,7 +110,6 @@ public:
   Polygon get() {
     R_xlen_t n_row = mat.nrow();
     Polygon x( n_row );
-    Rcpp::Rcout << "nrow: " << n_row << std::endl;
     R_xlen_t i;
     for( i = 0; i < n_row; ++i ) {
       Rcpp::Vector< RTYPE > v = mat( i, Rcpp::_);

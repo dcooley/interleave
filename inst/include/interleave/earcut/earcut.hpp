@@ -24,7 +24,7 @@ public:
   //std::vector<N> indices;
   std::vector< double > xyzcoords;
   //int stride = 2; // interleave (can be 3)
-  int stride = 2;
+  //int stride = 2;
   std::size_t vertices = 0;
 
   template <typename Polygon >
@@ -158,6 +158,8 @@ void Earcut<N>::operator()(const Polygon& points) {
   //estimate size of nodes and indices
   nodes.reset(len * 3 / 2);
   //indices.reserve(len + points[0].size());
+  // std::cout << "stride: " << points[0][0].size() << std::endl;
+  std::size_t stride = points[0][0].size();
 
   xyzcoords.reserve( ( len + points[0].size() ) * stride );
 
