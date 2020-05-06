@@ -298,11 +298,12 @@ void Earcut<N>::earcutLinked(Node* ear, const Polygon& points, int pass) {
       // Polygons points is a vector< vector< array< T, 2 > > >
       // so where is idx 0?
 
-      std::cout << "points.size() " << points.size() << std::endl;
-      std::cout << "points[0].size() " << points[0].size() << std::endl;
       std::vector< std::vector< double > > pt = points[0];
       std::vector< double > xy = pt[ e_idx ];
-      std::cout << "xy.size()  " << xy.size() << std::endl;
+
+      // std::cout << "points.size() " << points.size() << std::endl;
+      // std::cout << "points[0].size() " << points[0].size() << std::endl;
+      // std::cout << "xy.size()  " << xy.size() << std::endl;
       //
       //std::cout << "pt.size() " << pt.size() << std::endl;
       //std::cout << "p_idx; " << p_idx << ", e_idx: " << e_idx << ", n_idx: " << n_idx << std::endl;

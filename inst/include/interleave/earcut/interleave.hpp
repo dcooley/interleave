@@ -164,7 +164,7 @@ namespace interleave {
 namespace earcut {
 
 inline Rcpp::NumericVector earcut(
-    SEXP& polygon
+    Rcpp::List& polygon
 ) {
 
 

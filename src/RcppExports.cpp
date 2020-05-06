@@ -5,20 +5,44 @@
 
 using namespace Rcpp;
 
-// rcpp_earcut
-SEXP rcpp_earcut(SEXP& obj);
-RcppExport SEXP _interleave_rcpp_earcut(SEXP objSEXP) {
+// rcpp_earcut_sfg
+SEXP rcpp_earcut_sfg(Rcpp::List& polygon);
+RcppExport SEXP _interleave_rcpp_earcut_sfg(SEXP polygonSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List& >::type polygon(polygonSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_earcut_sfg(polygon));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_earcut_sfc
+SEXP rcpp_earcut_sfc(Rcpp::List& polygons);
+RcppExport SEXP _interleave_rcpp_earcut_sfc(SEXP polygonsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List& >::type polygons(polygonsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_earcut_sfc(polygons));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_interleave
+SEXP rcpp_interleave(SEXP& obj);
+RcppExport SEXP _interleave_rcpp_interleave(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_earcut(obj));
+    rcpp_result_gen = Rcpp::wrap(rcpp_interleave(obj));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_interleave_rcpp_earcut", (DL_FUNC) &_interleave_rcpp_earcut, 1},
+    {"_interleave_rcpp_earcut_sfg", (DL_FUNC) &_interleave_rcpp_earcut_sfg, 1},
+    {"_interleave_rcpp_earcut_sfc", (DL_FUNC) &_interleave_rcpp_earcut_sfc, 1},
+    {"_interleave_rcpp_interleave", (DL_FUNC) &_interleave_rcpp_interleave, 1},
     {NULL, NULL, 0}
 };
 
