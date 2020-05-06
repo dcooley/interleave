@@ -110,6 +110,7 @@ public:
   Polygon get() {
     R_xlen_t n_row = mat.nrow();
     Polygon x( n_row );
+    Rcpp::Rcout << "nrow: " << n_row << std::endl;
     R_xlen_t i;
     for( i = 0; i < n_row; ++i ) {
       Rcpp::Vector< RTYPE > v = mat( i, Rcpp::_);
@@ -167,34 +168,14 @@ inline Rcpp::NumericVector earcut(
     Rcpp::List& polygon
 ) {
 
-
-  //const std::size_t stride = 2;
-  //using stride = std::size_t;
-
-  //constexpr std::size_t s = stride;
-  //using Coord = double;
-  //std::vector< double > Point( stride );
-  //using Point = std::array< Coord, stride >;
-  //using Point = std::vector< double >;
-
-  //std::unique_ptr< double[] > Point { new double[ stride ] };
-
-  //using Point = std::vector< double >;
-
-  // std::vector< double > p;
-  // p.reserve( stride );
-  //
-  // using Point = p;
-  //
-
   using Point = std::vector< double >;
   using Polygon = std::vector< Point >;
   using Polygons = std::vector< Polygon >;
 
   Polygons polyrings = Rcpp::as< Polygons >( polygon );
-  std::vector< double> coords = ::earcut::earcut< uint32_t >( polyrings );
+  std::vector< double > coords = ::earcut::earcut< uint32_t >( polyrings );
   return Rcpp::wrap( coords );
-  //return Rcpp::NumericVector::create();
+  return Rcpp::NumericVector::create();
 }
 
 } // earcut

@@ -5,25 +5,14 @@
 
 using namespace Rcpp;
 
-// rcpp_earcut_sfg
-SEXP rcpp_earcut_sfg(Rcpp::List& polygon);
-RcppExport SEXP _interleave_rcpp_earcut_sfg(SEXP polygonSEXP) {
+// rcpp_earcut
+SEXP rcpp_earcut(Rcpp::List& polygon);
+RcppExport SEXP _interleave_rcpp_earcut(SEXP polygonSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List& >::type polygon(polygonSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_earcut_sfg(polygon));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpp_earcut_sfc
-SEXP rcpp_earcut_sfc(Rcpp::List& polygons);
-RcppExport SEXP _interleave_rcpp_earcut_sfc(SEXP polygonsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List& >::type polygons(polygonsSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_earcut_sfc(polygons));
+    rcpp_result_gen = Rcpp::wrap(rcpp_earcut(polygon));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -40,8 +29,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_interleave_rcpp_earcut_sfg", (DL_FUNC) &_interleave_rcpp_earcut_sfg, 1},
-    {"_interleave_rcpp_earcut_sfc", (DL_FUNC) &_interleave_rcpp_earcut_sfc, 1},
+    {"_interleave_rcpp_earcut", (DL_FUNC) &_interleave_rcpp_earcut, 1},
     {"_interleave_rcpp_interleave", (DL_FUNC) &_interleave_rcpp_interleave, 1},
     {NULL, NULL, 0}
 };

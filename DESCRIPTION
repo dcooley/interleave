@@ -6,7 +6,7 @@ Authors@R: c(
         person("David", "Coole", email = "mdsumner@gmail.com", role = c("aut", "cre")), 
         person("Mapbox", role = "cph", comment = "author of header library earcut.hpp")
         )
-Description: 
+Description: TBC
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
