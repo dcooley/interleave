@@ -4,6 +4,8 @@ status](https://github.com/dcooley/interleave/workflows/R-CMD-check/badge.svg)](
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<img src="./man/figures/interleaving.gif" width="256px" height="256px" />
+
 # interleave
 
 I’m building this library to be the workhorse for converting matrices
@@ -114,9 +116,9 @@ microbenchmark::microbenchmark(
   times = 25
 )
 # Unit: milliseconds
-#   expr      min       lq     mean   median       uq      max neval
-#  leave 11.75781 14.52829 24.24640 16.79359 21.69522 63.91076    25
-#  baset 10.21003 14.35264 27.32136 17.41447 49.69645 78.99181    25
+#   expr       min       lq     mean   median       uq      max neval
+#  leave 11.189375 11.87089 26.31346 15.89984 48.89470 62.57576    25
+#  baset  9.857257 10.71611 16.43753 14.33702 15.44231 49.40193    25
 
 
 
@@ -138,8 +140,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: microseconds
 #   expr    min     lq      mean median     uq       max neval
-#  leave  4.836  5.220   7.11692  5.472  5.867    32.052    25
-#  baset 13.964 14.617 721.65436 15.460 16.971 17658.334    25
+#  leave  4.441  5.135   6.04656  5.754  6.146    15.362    25
+#  baset 14.059 14.893 722.34356 16.057 16.777 17669.389    25
 ```
 
 ## Interleaved object

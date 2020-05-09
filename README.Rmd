@@ -17,11 +17,15 @@ knitr::opts_chunk$set(
 library(interleave)
 ```
 
+
+
+```{r, echo = FALSE, out.height="256px", out.width="256px"}
+knitr::include_graphics("./man/figures/interleaving.gif")
+```
+
 # interleave
 
 I'm building this library to be the workhorse for converting matrices (and lists of matrices) into single, interleaved vectors, ready for WebGL applications.
-
-
 
 ```{r}
 
