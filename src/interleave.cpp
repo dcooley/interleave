@@ -31,7 +31,7 @@ SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
   R_xlen_t i;
 
   for( i = 0; i < total_coordinates; ++i ) {
-    start_indices[ i ] = i * stride;
+    start_indices[ i ] = i * 1;
   }
 
   Rcpp::IntegerVector n_coordinates = Rcpp::rep( stride, total_coordinates );
@@ -51,6 +51,10 @@ SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
 // [[Rcpp::export]]
 SEXP rcpp_interleave_triangle( Rcpp::List& obj ) {
 
+  // I Need the index of the original coordinate so that
+  // I can reference the correct row of data for each coordinate
+  // right.
+
   Rcpp::List lst_coords = interleave::earcut::earcut( obj );
 
   Rcpp::NumericVector nv = lst_coords["coordinates"];
@@ -68,7 +72,7 @@ SEXP rcpp_interleave_triangle( Rcpp::List& obj ) {
   R_xlen_t i;
   //
   for( i = 0; i < n_indices; ++i ) {
-    start_indices[ i ] = i * stride * 3;
+    start_indices[ i ] = i * 3;
   }
   //
   // // as we're making triangles, there are always 3 coordinates PER triangle
