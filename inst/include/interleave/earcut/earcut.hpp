@@ -21,18 +21,17 @@ namespace detail {
 template <typename N = uint32_t>
 class Earcut {
 public:
-  //std::vector<N> indices;
+
   std::vector< double > xyzcoords;
-  //int stride = 2; // interleave (can be 3)
-  //int stride = 2;
   std::size_t vertices = 0;
+  std::size_t stride = 0;
 
   template <typename Polygon >
   void operator()(const Polygon& points);
 
 private:
   struct Node {
-    Node(N index, std::vector< double > coords_ ) : i(index), coords(coords_) {}
+    Node(N index, std::vector< double > coords_) : i(index), coords(coords_) {}
     //Node(N index, double x_, double y_ : i(index), x(x_), y(y_) {}
     Node(const Node&) = delete;
     Node& operator=(const Node&) = delete;
@@ -158,8 +157,7 @@ void Earcut<N>::operator()(const Polygon& points) {
   //estimate size of nodes and indices
   nodes.reset(len * 3 / 2);
   //indices.reserve(len + points[0].size());
-  // std::cout << "stride: " << points[0][0].size() << std::endl;
-  std::size_t stride = points[0][0].size();
+  stride = points[0][0].size();
 
   xyzcoords.reserve( ( len + points[0].size() ) * stride );
 
@@ -845,11 +843,41 @@ void Earcut<N>::removeNode(Node* p) {
 }
 
 template <typename N = uint32_t, typename Polygon>
-std::vector< double > earcut(const Polygon& poly) {
+SEXP earcut(const Polygon& poly) {
   earcut::detail::Earcut<N> earcut;
   earcut(poly);
-  return std::move( earcut.xyzcoords );
-  //return std::move(earcut.indices);
+
+  std::vector< double > coords = std::move( earcut.xyzcoords );
+
+  //return Rcpp::wrap( coords );
+  std::size_t stride = std::move( earcut.stride );
+
+  Rcpp::NumericVector nv = Rcpp::wrap( coords );
+  std::size_t total_coordinates = nv.length() / stride;
+
+
+  // start_indices is the start of each triangle
+  // each triangle has 3 coordinates (where a coordinate vector is length stride )
+  // so the start indices are 0 + (3 * stride ) + (3 * stride * 2 ) + (3 * stride * 3 ) + ...
+  //
+  R_xlen_t n_indices = total_coordinates / 3;
+  Rcpp::IntegerVector start_indices( n_indices );
+  R_xlen_t i;
+  //
+  for( i = 0; i < n_indices; ++i ) {
+    start_indices[ i ] = i * stride * 3;
+  }
+  //
+  // // as we're making triangles, there are always 3 coordinates PER triangle
+  Rcpp::IntegerVector n_coordinates = Rcpp::rep( 3, n_indices );
+  //
+  return Rcpp::List::create(
+    Rcpp::_["coordinates"] = nv,
+    Rcpp::_["start_indices"] = start_indices,
+    Rcpp::_["n_coordinates"] = n_coordinates,
+    Rcpp::_["total_coordinates"] = total_coordinates,
+    Rcpp::_["stride"] = stride
+  );
 }
 
 }  // earcut

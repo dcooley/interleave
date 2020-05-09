@@ -9,7 +9,7 @@ output: github_document
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = ">",
+  comment = "#",
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
@@ -84,7 +84,7 @@ mat <- matrix(rnorm(5e6), ncol = 5, byrow = T)
 
 microbenchmark::microbenchmark(
   leave = { interleave( mat ) },
-  baset = { 
+  baset = {
     mat2 <- t( mat )
     dim( mat2 ) <- NULL
     },
@@ -99,7 +99,7 @@ lst <- list( mat, mat, mat, mat, mat )
 microbenchmark::microbenchmark(
   leave = { interleave( lst ) },
   baset = {
-    unlist( 
+    unlist(
       lapply(lst, function(x) {
         y <- t(x)
         dim( y ) <- NULL
@@ -111,5 +111,17 @@ microbenchmark::microbenchmark(
 )
 
 ```
+
+## Interleaved object
+
+- **coordinates** - the interleaved coordinates
+- **stride** - the number of values in each coordinate.
+- **start_indices** - the index of **coordinates** which denotes the start of each geometry (using 0-based indexing)
+- **n_coordinates** - the number of coordinates in each geometry
+- **total_coordinates** - the total number of coordinates in **coordinates**
+
+
+
+
 
 

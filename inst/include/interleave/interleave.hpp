@@ -42,15 +42,15 @@ inline SEXP interleave( SEXP& sfg ) {
   }
   case VECSXP: {
     if( Rf_isNewList( sfg ) ) {
-    Rcpp::List lst = Rcpp::as< Rcpp::List >( sfg );
-    R_xlen_t n = lst.size();
-    R_xlen_t i;
-    Rcpp::List res( n ); // store interleaved vectors in the same nested-list structure
+      Rcpp::List lst = Rcpp::as< Rcpp::List >( sfg );
+      R_xlen_t n = lst.size();
+      R_xlen_t i;
+      Rcpp::List res( n ); // store interleaved vectors in the same nested-list structure
 
-    for( i = 0; i < n; ++i ) {
-      SEXP sfg = lst[ i ];
-      res[ i ] = interleave( sfg );
-    }
+      for( i = 0; i < n; ++i ) {
+        SEXP sfg = lst[ i ];
+        res[ i ] = interleave( sfg );
+      }
 
     return interleave::utils::unlist_list( res );
   }

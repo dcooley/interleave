@@ -9,3 +9,7 @@ rcpp_interleave <- function(obj) {
     .Call(`_interleave_rcpp_interleave`, obj)
 }
 
+rcpp_interleave_point <- function(obj, stride) {
+    .Call(`_interleave_rcpp_interleave_point`, obj, stride)
+}
+
