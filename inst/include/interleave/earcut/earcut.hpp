@@ -852,32 +852,11 @@ SEXP earcut(const Polygon& poly) {
   //return Rcpp::wrap( coords );
   std::size_t stride = std::move( earcut.stride );
 
-  Rcpp::NumericVector nv = Rcpp::wrap( coords );
-  std::size_t total_coordinates = nv.length() / stride;
-
-
-  // start_indices is the start of each triangle
-  // each triangle has 3 coordinates (where a coordinate vector is length stride )
-  // so the start indices are 0 + (3 * stride ) + (3 * stride * 2 ) + (3 * stride * 3 ) + ...
-  //
-  R_xlen_t n_indices = total_coordinates / 3;
-  Rcpp::IntegerVector start_indices( n_indices );
-  R_xlen_t i;
-  //
-  for( i = 0; i < n_indices; ++i ) {
-    start_indices[ i ] = i * stride * 3;
-  }
-  //
-  // // as we're making triangles, there are always 3 coordinates PER triangle
-  Rcpp::IntegerVector n_coordinates = Rcpp::rep( 3, n_indices );
-  //
   return Rcpp::List::create(
-    Rcpp::_["coordinates"] = nv,
-    Rcpp::_["start_indices"] = start_indices,
-    Rcpp::_["n_coordinates"] = n_coordinates,
-    Rcpp::_["total_coordinates"] = total_coordinates,
+    Rcpp::_["coordinates"] = Rcpp::wrap( coords ),
     Rcpp::_["stride"] = stride
   );
+
 }
 
 }  // earcut

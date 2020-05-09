@@ -65,15 +65,6 @@ interleave:::rcpp_earcut( lst )
 #  [1] 0.00 1.00 0.00 0.00 0.69 0.00 0.69 0.00 0.80 0.60 0.50 0.70 0.50 0.70 1.00
 # [16] 0.80 0.75 1.00 0.00 1.00 0.69 0.00 0.50 0.70 0.50 0.70 0.75 1.00 0.00 1.00
 # 
-# $start_indices
-# [1]  0  6 12 18 24
-# 
-# $n_coordinates
-# [1] 3 3 3 3 3
-# 
-# $total_coordinates
-# [1] 15
-# 
 # $stride
 # [1] 2
 ```
@@ -100,15 +91,6 @@ interleave:::rcpp_earcut( lst )
 # [46] 0.40 0.30 0.60 0.50 0.40 0.50 0.20 0.69 0.00 0.50 0.70 0.00 1.00 0.30 0.60
 # [61] 0.50 0.40 0.69 0.00 0.50 0.70 0.50 0.70 0.30 0.60 0.50 0.40
 # 
-# $start_indices
-#  [1]  0  6 12 18 24 30 36 42 48 54 60 66
-# 
-# $n_coordinates
-#  [1] 3 3 3 3 3 3 3 3 3 3 3 3
-# 
-# $total_coordinates
-# [1] 36
-# 
 # $stride
 # [1] 2
 ```
@@ -133,8 +115,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: milliseconds
 #   expr       min       lq     mean   median       uq      max neval
-#  leave 10.693548 12.40403 25.04083 15.97341 48.25999 63.53208    25
-#  baset  9.804281 10.73121 17.59349 14.18340 15.50976 50.16852    25
+#  leave 10.787149 11.75352 21.73152 15.94969 17.64383 51.93305    25
+#  baset  9.741075 10.56284 23.05979 14.61776 24.03901 67.55519    25
 
 
 
@@ -156,8 +138,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: microseconds
 #   expr    min     lq      mean median     uq       max neval
-#  leave  4.515  5.026   6.45844  5.265  6.359    18.539    25
-#  baset 14.173 15.625 651.73228 16.323 17.611 15892.314    25
+#  leave  4.541  5.758   7.82788  6.502  7.089    20.728    25
+#  baset 14.092 15.093 697.74984 16.457 18.368 17014.509    25
 ```
 
 ## Interleaved object
@@ -167,5 +149,69 @@ microbenchmark::microbenchmark(
   - **start\_indices** - the index of **coordinates** which denotes the
     start of each geometry (using 0-based indexing)
   - **n\_coordinates** - the number of coordinates in each geometry
-  - **total\_coordinates** - the total number of coordinates in
-    **coordinates**
+
+Where
+
+  - an individual coordinate is typically represented as (x, y),
+    although any number of values is accepted (e.g, (x, y, z, m))
+  - `length( coordinates ) / stride` gives the total number of
+    coordinates
+
+## Interleave Point
+
+``` r
+
+## Assume a 'linestring' object (i.e., a matrix)
+( mat <- matrix(1:10, ncol = 2) )
+#      [,1] [,2]
+# [1,]    1    6
+# [2,]    2    7
+# [3,]    3    8
+# [4,]    4    9
+# [5,]    5   10
+
+interleave:::rcpp_interleave_point( mat, 2 )
+# $coordinates
+#  [1]  1  6  2  7  3  8  4  9  5 10
+# 
+# $start_indices
+# [1] 0 2 4 6 8
+# 
+# $n_coordinates
+# [1] 2 2 2 2 2
+# 
+# $stride
+# [1] 2
+```
+
+## Interleave Triangle
+
+``` r
+
+x1 <- c(0, 0, 0.75, 1, 0.5, 0.8, 0.69)
+x2 <- c(0.2, 0.5, 0.5, 0.3, 0.2)
+y1 <- c(0, 1, 1, 0.8, 0.7, 0.6, 0)
+y2 <- c(0.2, 0.2, 0.4, 0.6, 0.4)
+
+mat1 <- cbind(x1, y1)
+mat2 <- cbind(x2, y2)
+
+lst <- list( mat1, mat2 )
+
+interleave:::rcpp_interleave_triangle( lst )
+# $coordinates
+#  [1] 0.00 0.00 0.20 0.20 0.20 0.40 0.50 0.20 0.20 0.20 0.00 0.00 0.69 0.00 0.80
+# [16] 0.60 0.50 0.70 0.50 0.70 1.00 0.80 0.75 1.00 0.00 1.00 0.00 0.00 0.20 0.40
+# [31] 0.50 0.20 0.00 0.00 0.69 0.00 0.50 0.70 0.75 1.00 0.00 1.00 0.00 1.00 0.20
+# [46] 0.40 0.30 0.60 0.50 0.40 0.50 0.20 0.69 0.00 0.50 0.70 0.00 1.00 0.30 0.60
+# [61] 0.50 0.40 0.69 0.00 0.50 0.70 0.50 0.70 0.30 0.60 0.50 0.40
+# 
+# $start_indices
+#  [1]  0  6 12 18 24 30 36 42 48 54 60 66
+# 
+# $n_coordinates
+#  [1] 3 3 3 3 3 3 3 3 3 3 3 3
+# 
+# $stride
+# [1] 2
+```
