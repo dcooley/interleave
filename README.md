@@ -114,9 +114,9 @@ microbenchmark::microbenchmark(
   times = 25
 )
 # Unit: milliseconds
-#   expr       min       lq     mean   median       uq      max neval
-#  leave 11.008382 15.27526 22.48564 16.01692 18.89878 53.88811    25
-#  baset  9.872472 11.13276 23.60263 14.43640 48.90131 62.61178    25
+#   expr      min       lq     mean   median       uq      max neval
+#  leave 11.75781 14.52829 24.24640 16.79359 21.69522 63.91076    25
+#  baset 10.21003 14.35264 27.32136 17.41447 49.69645 78.99181    25
 
 
 
@@ -138,8 +138,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: microseconds
 #   expr    min     lq      mean median     uq       max neval
-#  leave  4.372  5.137   5.91632  5.406  5.871    16.616    25
-#  baset 14.298 15.515 717.30676 15.985 16.806 17536.815    25
+#  leave  4.836  5.220   7.11692  5.472  5.867    32.052    25
+#  baset 13.964 14.617 721.65436 15.460 16.971 17658.334    25
 ```
 
 ## Interleaved object
@@ -156,7 +156,7 @@ Within the interleaved object
   - **stride** - the number of values in each coordinate.
   - **n\_coordinates** - the number of coordinates in each geometry
   - **start\_indices** - the index in the **coordinates** vector where
-    each geometry starts.
+    each geometry starts, divided by the stride.
 
 Wait, what? Can you explain the **start\_indices** again?
 
@@ -164,51 +164,60 @@ Ok, the **start\_indices** is **not** the index in the interleaved
 vector where each coordinate starts.
 
 If you imagine two lines represented by two matrices, one with seven
-rows and the other with 5.
+rows and the other with 4.
 
 ``` r
-x1 <- c(0, 0, 0.75, 1, 0.5, 0.8, 0.69)
-x2 <- c(0.2, 0.5, 0.5, 0.3, 0.2)
-y1 <- c(0, 1, 1, 0.8, 0.7, 0.6, 0)
-y2 <- c(0.2, 0.2, 0.4, 0.6, 0.4)
+x1 <- c(1:7)
+x2 <- c(8:11)
+y1 <- c(1:7)
+y2 <- c(8:11)
 
 mat1 <- cbind(x1, y1)
 mat2 <- cbind(x2, y2)
 ```
 
+Then the interleaved object of these lines is
+
 ``` r
 ( lst <- list( mat1, mat2 ) )
 # [[1]]
-#        x1  y1
-# [1,] 0.00 0.0
-# [2,] 0.00 1.0
-# [3,] 0.75 1.0
-# [4,] 1.00 0.8
-# [5,] 0.50 0.7
-# [6,] 0.80 0.6
-# [7,] 0.69 0.0
+#      x1 y1
+# [1,]  1  1
+# [2,]  2  2
+# [3,]  3  3
+# [4,]  4  4
+# [5,]  5  5
+# [6,]  6  6
+# [7,]  7  7
 # 
 # [[2]]
-#       x2  y2
-# [1,] 0.2 0.2
-# [2,] 0.5 0.2
-# [3,] 0.5 0.4
-# [4,] 0.3 0.6
-# [5,] 0.2 0.4
+#      x2 y2
+# [1,]  8  8
+# [2,]  9  9
+# [3,] 10 10
+# [4,] 11 11
 
-interleave( lst )
-#  [1] 0.00 0.00 0.00 1.00 0.75 1.00 1.00 0.80 0.50 0.70 0.80 0.60 0.69 0.00 0.20
-# [16] 0.20 0.50 0.20 0.50 0.40 0.30 0.60 0.20 0.40
+interleave:::rcpp_interleave_line( lst, 2 )
+# $coordinates
+#  [1]  1  1  2  2  3  3  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11
+# 
+# $start_indices
+# [1] 0 7
+# 
+# $n_coordinates
+# [1] 10
+# 
+# $stride
+# [1] 2
 ```
 
-The **stride** is 2 (i.e., there are two columns in the matrix).
+The first geometry obviously starts at index 0. The second geometry
+starts at index 7 multiplied by the stride; 7 x 2 = 14. So you can see
+in the **coordinates** object the (8, 8) pair of coordinates starts at
+index 14 (using 0-based indexing)
 
-… TODO once I’ve made the `interleave_line()` function work
-
-Total coordinates is…
-
-  - `length( coordinates ) / stride` gives the total number of
-    coordinates
+Finally, you can get the total number of coordinates for all the
+geometries by `length( coordinates ) / stride`
 
 ## Interleave Point
 

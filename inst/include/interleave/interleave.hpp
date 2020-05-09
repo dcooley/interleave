@@ -21,35 +21,35 @@ inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat ) {
   return res;
 }
 
-inline SEXP interleave( SEXP& sfg ) {
+inline SEXP interleave( SEXP& obj ) {
 
-  switch( TYPEOF ( sfg ) ) {
+  switch( TYPEOF ( obj ) ) {
   case INTSXP: {
-    if( Rf_isMatrix( sfg ) ) {
-    Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( sfg );
+    if( Rf_isMatrix( obj ) ) {
+    Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( obj );
     return interleave( im );
   } else {
-    return sfg; // it's already a vector
+    return obj; // it's already a vector
   }
   }
   case REALSXP: {
-    if( Rf_isMatrix( sfg ) ) {
-    Rcpp::NumericMatrix im = Rcpp::as< Rcpp::NumericMatrix >( sfg );
+    if( Rf_isMatrix( obj ) ) {
+    Rcpp::NumericMatrix im = Rcpp::as< Rcpp::NumericMatrix >( obj );
     return interleave( im );
   } else {
-    return sfg; // it's already a vector
+    return obj; // it's already a vector
   }
   }
   case VECSXP: {
-    if( Rf_isNewList( sfg ) ) {
-      Rcpp::List lst = Rcpp::as< Rcpp::List >( sfg );
+    if( Rf_isNewList( obj ) ) {
+      Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
       R_xlen_t n = lst.size();
       R_xlen_t i;
       Rcpp::List res( n ); // store interleaved vectors in the same nested-list structure
 
       for( i = 0; i < n; ++i ) {
-        SEXP sfg = lst[ i ];
-        res[ i ] = interleave( sfg );
+        SEXP obj = lst[ i ];
+        res[ i ] = interleave( obj );
       }
 
     return interleave::utils::unlist_list( res );

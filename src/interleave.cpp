@@ -3,6 +3,9 @@
 #include "interleave/earcut/earcut.hpp"
 #include "interleave/interleave.hpp"
 
+#include "geometries/geometries/coordinates.hpp"
+
+
 // [[Rcpp::export]]
 SEXP rcpp_earcut( Rcpp::List& polygon ) {
   return interleave::earcut::earcut( polygon );
@@ -44,6 +47,31 @@ SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
   );
 
   return Rcpp::List::create();
+
+}
+
+
+// [[Rcpp::export]]
+SEXP rcpp_interleave_line( SEXP& obj, int stride ) {
+
+  // TODO
+  // safely handle this conversion
+  Rcpp::List lst = Rcpp::as< Rcpp::List>( obj );
+  Rcpp::IntegerMatrix coordinate_indices = geometries::coordinates::coordinate_indices( lst );
+
+  Rcpp::IntegerVector start_indices = coordinate_indices( Rcpp::_, 0 );
+  R_xlen_t n_geometries = coordinate_indices.nrow();
+  R_xlen_t n_coordinates = coordinate_indices( n_geometries - 1, 1 );
+
+
+  Rcpp::NumericVector nv = interleave::interleave( obj );
+
+  return Rcpp::List::create(
+    Rcpp::_["coordinates"] = nv,
+    Rcpp::_["start_indices"] = start_indices,
+    Rcpp::_["n_coordinates"] = n_coordinates,
+    Rcpp::_["stride"] = stride
+  );
 
 }
 

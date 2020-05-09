@@ -122,40 +122,36 @@ Within the interleaved object
 - **coordinates** - all the coordinates as a single, interleaved vector
 - **stride** - the number of values in each coordinate.
 - **n_coordinates** - the number of coordinates in each geometry
-- **start_indices** - the index in the **coordinates** vector where each geometry starts.
+- **start_indices** - the index in the **coordinates** vector where each geometry starts, divided by the stride.
 
 Wait, what? Can you explain the **start_indices** again? 
 
 Ok, the **start_indices** is **not** the index in the interleaved vector where each coordinate starts. 
 
-If you imagine two lines represented by two matrices, one with seven rows and the other with 5.
+If you imagine two lines represented by two matrices, one with seven rows and the other with 4.
 
 ```{r}
-x1 <- c(0, 0, 0.75, 1, 0.5, 0.8, 0.69)
-x2 <- c(0.2, 0.5, 0.5, 0.3, 0.2)
-y1 <- c(0, 1, 1, 0.8, 0.7, 0.6, 0)
-y2 <- c(0.2, 0.2, 0.4, 0.6, 0.4)
+x1 <- c(1:7)
+x2 <- c(8:11)
+y1 <- c(1:7)
+y2 <- c(8:11)
 
 mat1 <- cbind(x1, y1)
 mat2 <- cbind(x2, y2)
 ```
 
-
+Then the interleaved object of these lines is
 
 ```{r}
 ( lst <- list( mat1, mat2 ) )
 
-interleave( lst )
+interleave:::rcpp_interleave_line( lst, 2 )
 ```
 
-The **stride** is 2 (i.e., there are two columns in the matrix). 
-
-... TODO once I've made the `interleave_line()` function work
+The first geometry obviously starts at index 0. The second geometry starts at index 7 multiplied by the stride; 7 x 2 = 14. So you can see in the **coordinates** object the (8, 8) pair of coordinates starts at index 14 (using 0-based indexing)
 
 
-Total coordinates is...
-
-- `length( coordinates ) / stride` gives the total number of coordinates 
+Finally, you can get the total number of coordinates for all the geometries by `length( coordinates ) / stride`
 
 
 ## Interleave Point
