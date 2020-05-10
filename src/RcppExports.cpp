@@ -40,12 +40,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_interleave_line
-SEXP rcpp_interleave_line(SEXP& obj, int stride);
+SEXP rcpp_interleave_line(Rcpp::List& obj, int stride);
 RcppExport SEXP _interleave_rcpp_interleave_line(SEXP objSEXP, SEXP strideSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP& >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List& >::type obj(objSEXP);
     Rcpp::traits::input_parameter< int >::type stride(strideSEXP);
     rcpp_result_gen = Rcpp::wrap(rcpp_interleave_line(obj, stride));
     return rcpp_result_gen;

@@ -118,12 +118,7 @@ inline SEXP earcut(
   using Polygons = std::vector< Polygon >;
   Polygons polyrings = Rcpp::as< Polygons >( polygon );
 
-  //return Rcpp::List::create();
-
-  Rcpp::List res = ::earcut::earcut< uint32_t >( polyrings );
-  return res;
-
-  //return ::earcut::earcut< uint32_t >( polyrings );
+  return ::earcut::earcut< uint32_t >( polyrings );
 }
 
 } // earcut

@@ -117,8 +117,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: milliseconds
 #   expr       min       lq     mean   median       uq      max neval
-#  leave 11.189375 11.87089 26.31346 15.89984 48.89470 62.57576    25
-#  baset  9.857257 10.71611 16.43753 14.33702 15.44231 49.40193    25
+#  leave 10.697150 11.60215 24.31259 15.93769 45.94516 53.29627    25
+#  baset  9.597162 10.75683 19.02145 13.86523 15.51466 61.11464    25
 
 
 
@@ -140,8 +140,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: microseconds
 #   expr    min     lq      mean median     uq       max neval
-#  leave  4.441  5.135   6.04656  5.754  6.146    15.362    25
-#  baset 14.059 14.893 722.34356 16.057 16.777 17669.389    25
+#  leave  4.648  5.191   5.91492  5.390  5.714    17.306    25
+#  baset 14.238 15.367 720.44728 16.306 17.202 17616.018    25
 ```
 
 ## Interleaved object
@@ -200,14 +200,13 @@ Then the interleaved object of these lines is
 # [4,] 11 11
 
 interleave:::rcpp_interleave_line( lst, 2 )
+# n_coordinates 7
+# n_coordinates 4
 # $coordinates
 #  [1]  1  1  2  2  3  3  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11
 # 
 # $start_indices
 # [1] 0 7
-# 
-# $n_coordinates
-# [1] 10
 # 
 # $stride
 # [1] 2

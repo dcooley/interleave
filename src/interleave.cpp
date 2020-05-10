@@ -52,24 +52,63 @@ SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
 
 
 // [[Rcpp::export]]
-SEXP rcpp_interleave_line( SEXP& obj, int stride ) {
+SEXP rcpp_interleave_line( Rcpp::List& obj, int stride ) {
 
-  // TODO
-  // safely handle this conversion
-  Rcpp::List lst = Rcpp::as< Rcpp::List>( obj );
-  Rcpp::IntegerMatrix coordinate_indices = geometries::coordinates::coordinate_indices( lst );
+  // this function will convert ANY input, and treat each matrix as its own linestring
+  // so a multipolygon or polygon will have all rings as separate 'start_indices'
+  // expects as input a list of geometry shapes
+  R_xlen_t total_coordinates = 0;
+  R_xlen_t n = obj.length();
+  R_xlen_t i;
 
-  Rcpp::IntegerVector start_indices = coordinate_indices( Rcpp::_, 0 );
-  R_xlen_t n_geometries = coordinate_indices.nrow();
-  R_xlen_t n_coordinates = coordinate_indices( n_geometries - 1, 1 );
+  Rcpp::List res_indices( n );
+  Rcpp::List res_list( n );
+
+  //Rcpp::IntegerVector geometry_coordinates( n );
+
+  for( i = 0; i < n; ++i ) {
+
+    SEXP g = obj[ i ];
+    Rcpp::IntegerMatrix coords = geometries::coordinates::coordinate_indices( g );
+
+    R_xlen_t n_geometries = coords.nrow();
+    R_xlen_t n_coordinates = coords( n_geometries - 1, 1 );
+
+    Rcpp::Rcout << "n_coordinates " << n_coordinates << std::endl;
+
+    // n_coordinates is the total number of coordinates for the given sfg
+    // this is what the data needs to be expanded by.
+    //n_coordinates = n_coordinates + 1;
+    //geometry_coordinates[ i ] = n_coordinates;
+
+    Rcpp::IntegerVector start_indices = coords( Rcpp::_, 0 );
+    start_indices = start_indices + total_coordinates;
+
+    res_indices[ i ] = start_indices;
+    res_list[ i ] = interleave::interleave( g );
+
+    total_coordinates = total_coordinates + n_coordinates;
+
+  }
 
 
-  Rcpp::NumericVector nv = interleave::interleave( obj );
+  //return Rcpp::List::create();
 
+  // // TODO
+  // // safely handle this conversion
+  // Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
+  // Rcpp::IntegerMatrix coordinate_indices = geometries::coordinates::coordinate_indices( lst );
+  //
+  // Rcpp::IntegerVector start_indices = coordinate_indices( Rcpp::_, 0 );
+  // R_xlen_t n_geometries = coordinate_indices.nrow();
+  // R_xlen_t n_coordinates = coordinate_indices( n_geometries - 1, 1 );
+  //
+  // Rcpp::NumericVector nv = interleave::interleave( obj );
+  //
   return Rcpp::List::create(
-    Rcpp::_["coordinates"] = nv,
-    Rcpp::_["start_indices"] = start_indices,
-    Rcpp::_["n_coordinates"] = n_coordinates,
+    Rcpp::_["coordinates"] = interleave::utils::unlist_list( res_list ),
+    Rcpp::_["start_indices"] = interleave::utils::unlist_list( res_indices ),
+    //Rcpp::_["n_coordinates"] = geometry_coordinates,
     Rcpp::_["stride"] = stride
   );
 
