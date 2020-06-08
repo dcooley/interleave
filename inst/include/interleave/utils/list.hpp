@@ -124,10 +124,71 @@ namespace utils {
    * @param lst_sizes - the dimensions of the list
    * @param values - vector of values to be unlist
    */
+  // inline void unlist_list(
+  //     const Rcpp::List& lst,
+  //     const Rcpp::List& lst_sizes,
+  //     Rcpp::LogicalVector& values,
+  //     int& list_position
+  // ) {
+  //   // - iterate through original list
+  //   // - extract each element and insert into 'values'
+  //   R_xlen_t n = lst.size();
+  //   Rcpp::List res( n );
+  //   R_xlen_t i;
+  //   for( i = 0; i < n; ++i ) {
+  //     switch( TYPEOF( lst[ i ] ) ) {
+  //     case VECSXP: {
+  //       unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
+  //       break;
+  //     }
+  //     default: {
+  //       Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
+  //       int end_position = list_position + n_elements[0] - 1;
+  //       Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
+  //       values[ elements ] = Rcpp::as< Rcpp::LogicalVector >( lst[ i ] );
+  //
+  //       list_position = end_position + 1;
+  //       break;
+  //     }
+  //     }
+  //   }
+  // }
+  //
+  // inline void unlist_list(
+  //     const Rcpp::List& lst,
+  //     const Rcpp::List& lst_sizes,
+  //     Rcpp::IntegerVector& values,
+  //     int& list_position
+  // ) {
+  //   // - iterate through original list
+  //   // - extract each element and insert into 'values'
+  //   R_xlen_t n = lst.size();
+  //   Rcpp::List res( n );
+  //   R_xlen_t i;
+  //   for( i = 0; i < n; ++i ) {
+  //     switch( TYPEOF( lst[ i ] ) ) {
+  //     case VECSXP: {
+  //       unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
+  //       break;
+  //     }
+  //     default: {
+  //       Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
+  //       int end_position = list_position + n_elements[0] - 1;
+  //       Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
+  //       values[ elements ] = Rcpp::as< Rcpp::IntegerVector >( lst[ i ] );
+  //
+  //       list_position = end_position + 1;
+  //       break;
+  //     }
+  //     }
+  //   }
+  // }
+
+  template< int RTYPE >
   inline void unlist_list(
       const Rcpp::List& lst,
       const Rcpp::List& lst_sizes,
-      Rcpp::LogicalVector& values,
+      Rcpp::Vector< RTYPE >& values,
       int& list_position
   ) {
     // - iterate through original list
@@ -138,14 +199,14 @@ namespace utils {
     for( i = 0; i < n; ++i ) {
       switch( TYPEOF( lst[ i ] ) ) {
       case VECSXP: {
-        unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
+        unlist_list< RTYPE >( lst[ i ], lst_sizes[ i ], values, list_position );
         break;
       }
       default: {
         Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
         int end_position = list_position + n_elements[0] - 1;
         Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
-        values[ elements ] = Rcpp::as< Rcpp::LogicalVector >( lst[ i ] );
+        values[ elements ] = Rcpp::as< Rcpp::Vector< RTYPE > >( lst[ i ] );
 
         list_position = end_position + 1;
         break;
@@ -154,95 +215,35 @@ namespace utils {
     }
   }
 
-  inline void unlist_list(
-      const Rcpp::List& lst,
-      const Rcpp::List& lst_sizes,
-      Rcpp::IntegerVector& values,
-      int& list_position
-  ) {
-    // - iterate through original list
-    // - extract each element and insert into 'values'
-    R_xlen_t n = lst.size();
-    Rcpp::List res( n );
-    R_xlen_t i;
-    for( i = 0; i < n; ++i ) {
-      switch( TYPEOF( lst[ i ] ) ) {
-      case VECSXP: {
-        unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
-        break;
-      }
-      default: {
-        Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
-        int end_position = list_position + n_elements[0] - 1;
-        Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
-        values[ elements ] = Rcpp::as< Rcpp::IntegerVector >( lst[ i ] );
-
-        list_position = end_position + 1;
-        break;
-      }
-      }
-    }
-  }
-
-  inline void unlist_list(
-      const Rcpp::List& lst,
-      const Rcpp::List& lst_sizes,
-      Rcpp::NumericVector& values,
-      int& list_position
-  ) {
-    // - iterate through original list
-    // - extract each element and insert into 'values'
-    R_xlen_t n = lst.size();
-    Rcpp::List res( n );
-    R_xlen_t i;
-    for( i = 0; i < n; ++i ) {
-      switch( TYPEOF( lst[ i ] ) ) {
-      case VECSXP: {
-        unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
-        break;
-      }
-      default: {
-        Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
-        int end_position = list_position + n_elements[0] - 1;
-        Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
-        values[ elements ] = Rcpp::as< Rcpp::NumericVector >( lst[ i ] );
-
-        list_position = end_position + 1;
-        break;
-      }
-      }
-    }
-  }
-
-  inline void unlist_list(
-      const Rcpp::List& lst,
-      const Rcpp::List& lst_sizes,
-      Rcpp::StringVector& values,
-      int& list_position
-  ) {
-    // - iterate through original list
-    // - extract each element and insert into 'values'
-    R_xlen_t n = lst.size();
-    Rcpp::List res( n );
-    R_xlen_t i;
-    for( i = 0; i < n; i++ ) {
-      switch( TYPEOF( lst[i] ) ) {
-      case VECSXP: {
-        unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
-        break;
-      }
-      default: {
-        Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
-        int end_position = list_position + n_elements[0] - 1;
-        Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
-        values[ elements ] = Rcpp::as< Rcpp::StringVector >( lst[ i ] );
-
-        list_position = end_position + 1;
-        break;
-      }
-      }
-    }
-  }
+  // inline void unlist_list(
+  //     const Rcpp::List& lst,
+  //     const Rcpp::List& lst_sizes,
+  //     Rcpp::StringVector& values,
+  //     int& list_position
+  // ) {
+  //   // - iterate through original list
+  //   // - extract each element and insert into 'values'
+  //   R_xlen_t n = lst.size();
+  //   Rcpp::List res( n );
+  //   R_xlen_t i;
+  //   for( i = 0; i < n; i++ ) {
+  //     switch( TYPEOF( lst[i] ) ) {
+  //     case VECSXP: {
+  //       unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
+  //       break;
+  //     }
+  //     default: {
+  //       Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
+  //       int end_position = list_position + n_elements[0] - 1;
+  //       Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
+  //       values[ elements ] = Rcpp::as< Rcpp::StringVector >( lst[ i ] );
+  //
+  //       list_position = end_position + 1;
+  //       break;
+  //     }
+  //     }
+  //   }
+  // }
 
   inline SEXP unlist_list( Rcpp::List& lst ) {
 
@@ -252,26 +253,26 @@ namespace utils {
     Rcpp::List lst_sizes = list_size( lst, total_size, existing_type );
 
     switch( existing_type ) {
-    case LGLSXP: {
-      Rcpp::LogicalVector lv( total_size );
-      unlist_list( lst, lst_sizes, lv, position );
-      return lv;
-    }
-    case INTSXP: {
-      Rcpp::IntegerVector iv( total_size );
-      unlist_list( lst, lst_sizes, iv, position );
-      return iv;
-    }
-    case REALSXP: {
-      Rcpp::NumericVector nv( total_size );
-      unlist_list( lst, lst_sizes, nv, position );
-      return nv;
-    }
-    default: {
-      Rcpp::StringVector sv( total_size );
-      unlist_list( lst, lst_sizes, sv, position );
-      return sv;
-    }
+      case LGLSXP: {
+        Rcpp::Vector< LGLSXP > v( total_size );
+        unlist_list< LGLSXP >( lst, lst_sizes, v, position );
+        return v;
+      }
+      case INTSXP: {
+        Rcpp::Vector< INTSXP > v( total_size );
+        unlist_list< INTSXP >( lst, lst_sizes, v, position );
+        return v;
+      }
+      case REALSXP: {
+        Rcpp::Vector< REALSXP > v( total_size );
+        unlist_list< REALSXP >( lst, lst_sizes, v, position );
+        return v;
+      }
+      default: {
+        Rcpp::Vector< STRSXP > v( total_size );
+        unlist_list< STRSXP >( lst, lst_sizes, v, position );
+        return v;
+      }
     }
 
     Rcpp::stop("sfheaders - couldn't unlist this object");

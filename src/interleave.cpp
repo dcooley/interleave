@@ -3,7 +3,8 @@
 #include "interleave/earcut/earcut.hpp"
 #include "interleave/interleave.hpp"
 
-#include "geometries/geometries/coordinates.hpp"
+//#include "geometries/coordinates/coordinates.hpp"
+#include "geometries/coordinates/dimensions.hpp"
 
 
 // [[Rcpp::export]]
@@ -69,10 +70,12 @@ SEXP rcpp_interleave_line( Rcpp::List& obj, int stride ) {
   for( i = 0; i < n; ++i ) {
 
     SEXP g = obj[ i ];
-    Rcpp::IntegerMatrix coords = geometries::coordinates::coordinate_indices( g );
+    Rcpp::List dimension = geometries::coordinates::geometry_dimensions( g );
+    Rcpp::IntegerMatrix dims = dimension["dimensions"];
+    //Rcpp::IntegerMatrix coords = geometries::coordinates::coordinate_indices( g );
 
-    R_xlen_t n_geometries = coords.nrow();
-    R_xlen_t n_coordinates = coords( n_geometries - 1, 1 );
+    R_xlen_t n_geometries = dims.nrow();
+    R_xlen_t n_coordinates = dims( n_geometries - 1, 1 );
 
     Rcpp::Rcout << "n_coordinates " << n_coordinates << std::endl;
 
@@ -81,7 +84,7 @@ SEXP rcpp_interleave_line( Rcpp::List& obj, int stride ) {
     //n_coordinates = n_coordinates + 1;
     //geometry_coordinates[ i ] = n_coordinates;
 
-    Rcpp::IntegerVector start_indices = coords( Rcpp::_, 0 );
+    Rcpp::IntegerVector start_indices = dims( Rcpp::_, 0 );
     start_indices = start_indices + total_coordinates;
 
     res_indices[ i ] = start_indices;
