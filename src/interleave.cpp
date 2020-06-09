@@ -19,6 +19,20 @@ SEXP rcpp_interleave( SEXP& obj ) {
 }
 
 
+// There will be three functions whose outputs are desigend
+// for WebGL applications
+//
+// interleave_point
+// - converts any shape into a "POINT" object
+//
+// interleave_line
+// - converts any shape into a "LINE" object
+//
+// interleave_triangle
+// - converts any shape into a "TRIANGLE" object
+//
+//
+
 // [[Rcpp::export]]
 SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
   // TODO:
@@ -43,7 +57,7 @@ SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
   return Rcpp::List::create(
     Rcpp::_["coordinates"] = coords,
     Rcpp::_["start_indices"] = start_indices,
-    Rcpp::_["n_coordinates"] = n_coordinates,
+    // Rcpp::_["n_coordinates"] = n_coordinates,
     Rcpp::_["stride"] = stride
   );
 
@@ -77,7 +91,7 @@ SEXP rcpp_interleave_line( Rcpp::List& obj, int stride ) {
     R_xlen_t n_geometries = dims.nrow();
     R_xlen_t n_coordinates = dims( n_geometries - 1, 1 );
 
-    Rcpp::Rcout << "n_coordinates " << n_coordinates << std::endl;
+    //Rcpp::Rcout << "n_coordinates " << n_coordinates << std::endl;
 
     // n_coordinates is the total number of coordinates for the given sfg
     // this is what the data needs to be expanded by.
@@ -121,10 +135,30 @@ SEXP rcpp_interleave_line( Rcpp::List& obj, int stride ) {
 // [[Rcpp::export]]
 SEXP rcpp_interleave_triangle( Rcpp::List& obj ) {
 
+  // TODO:
+  // - accept any nested depth (list of lists of matrices)
+  // - loop over list (sfc) and triangulate each polygon
+  // - unilst the lists at the end
+
   // I Need the index of the original coordinate so that
   // I can reference the correct row of data for each coordinate
   // right.
+  R_xlen_t total_coordinates = 0;
+  R_xlen_t n = obj.length();
+  R_xlen_t i;
 
+  Rcpp::List res_indices( n );
+  Rcpp::List res_list( n );
+
+  for( i = 0; i < n; ++i ) {
+
+  }
+
+
+  // earcut works on a list of matrices
+  // so if I have a MULTIPOLYGON I need to remove one depth level
+  // if I have a LINESTRING I need to nest it to a MULTILINESTRING (i.e. POLYGON)
+  // so I need the 'nest()' function of geometries for this.
   Rcpp::List lst_coords = interleave::earcut::earcut( obj );
 
   Rcpp::NumericVector nv = lst_coords["coordinates"];
@@ -151,7 +185,7 @@ SEXP rcpp_interleave_triangle( Rcpp::List& obj ) {
   return Rcpp::List::create(
     Rcpp::_["coordinates"] = nv,
     Rcpp::_["start_indices"] = start_indices,
-    Rcpp::_["n_coordinates"] = n_coordinates,
+    // Rcpp::_["n_coordinates"] = n_coordinates,
     Rcpp::_["stride"] = stride
   );
 }
