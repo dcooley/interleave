@@ -44,7 +44,7 @@ SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
   // assume the stride is the same for each matrix.
 
   Rcpp::NumericVector coords = interleave::interleave( obj );
-  std::size_t total_coordinates = coords.length() / stride;
+  R_xlen_t total_coordinates = coords.length() / stride;
   Rcpp::IntegerVector start_indices( total_coordinates );
   R_xlen_t i;
 
@@ -164,7 +164,7 @@ SEXP rcpp_interleave_triangle( Rcpp::List& obj ) {
   Rcpp::NumericVector nv = lst_coords["coordinates"];
   int stride = static_cast< int >( lst_coords["stride"] );
 
-  std::size_t total_coordinates = nv.length() / stride;
+  total_coordinates = nv.length() / stride;
 
 
   // start_indices is the start of each triangle
@@ -173,7 +173,7 @@ SEXP rcpp_interleave_triangle( Rcpp::List& obj ) {
   //
   R_xlen_t n_indices = total_coordinates / 3;
   Rcpp::IntegerVector start_indices( n_indices );
-  R_xlen_t i;
+
   //
   for( i = 0; i < n_indices; ++i ) {
     start_indices[ i ] = i * 3;
