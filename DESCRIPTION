@@ -21,3 +21,5 @@ Suggests:
     tinytest,
     covr
 SystemRequirements: C++11
+Remotes:
+    dcooley/geometries

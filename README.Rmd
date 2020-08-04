@@ -168,8 +168,6 @@ Finally, you can get the total number of coordinates for all the geometries by `
 ( mat <- matrix(1:10, ncol = 2) )
 
 interleave:::rcpp_interleave_point( mat, 2 )
-
-
 ```
 
 
