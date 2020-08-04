@@ -1,6 +1,8 @@
 
 [![R build
 status](https://github.com/dcooley/interleave/workflows/R-CMD-check/badge.svg)](https://github.com/dcooley/interleave/actions)
+[![Codecov test
+coverage](https://codecov.io/gh/dcooley/interleave/branch/master/graph/badge.svg)](https://codecov.io/gh/dcooley/interleave?branch=master)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
@@ -117,8 +119,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: milliseconds
 #   expr       min       lq     mean   median       uq      max neval
-#  leave 10.697150 11.60215 24.31259 15.93769 45.94516 53.29627    25
-#  baset  9.597162 10.75683 19.02145 13.86523 15.51466 61.11464    25
+#  leave 11.277468 13.32364 25.82973 16.74018 49.91673 64.96434    25
+#  baset  9.901499 11.93108 20.68320 15.32377 16.84644 55.94543    25
 
 
 
@@ -140,8 +142,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: microseconds
 #   expr    min     lq      mean median     uq       max neval
-#  leave  4.648  5.191   5.91492  5.390  5.714    17.306    25
-#  baset 14.238 15.367 720.44728 16.306 17.202 17616.018    25
+#  leave  4.208  4.977   5.96672  5.259  6.193    18.895    25
+#  baset 15.456 16.204 719.45748 17.162 17.702 17567.680    25
 ```
 
 ## Interleaved object
@@ -200,13 +202,11 @@ Then the interleaved object of these lines is
 # [4,] 11 11
 
 interleave:::rcpp_interleave_line( lst, 2 )
-# n_coordinates 7
-# n_coordinates 4
 # $coordinates
 #  [1]  1  1  2  2  3  3  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11
 # 
 # $start_indices
-# [1] 0 7
+# [1] 0 6
 # 
 # $stride
 # [1] 2
@@ -240,9 +240,6 @@ interleave:::rcpp_interleave_point( mat, 2 )
 # $start_indices
 # [1] 0 1 2 3 4
 # 
-# $n_coordinates
-# [1] 2 2 2 2 2
-# 
 # $stride
 # [1] 2
 ```
@@ -271,9 +268,6 @@ interleave:::rcpp_interleave_triangle( lst )
 # 
 # $start_indices
 #  [1]  0  3  6  9 12 15 18 21 24 27 30 33
-# 
-# $n_coordinates
-#  [1] 3 3 3 3 3 3 3 3 3 3 3 3
 # 
 # $stride
 # [1] 2

@@ -3,6 +3,7 @@ output: github_document
 ---
 
 [![R build status](https://github.com/dcooley/interleave/workflows/R-CMD-check/badge.svg)](https://github.com/dcooley/interleave/actions)
+[![Codecov test coverage](https://codecov.io/gh/dcooley/interleave/branch/master/graph/badge.svg)](https://codecov.io/gh/dcooley/interleave?branch=master)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 

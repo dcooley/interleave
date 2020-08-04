@@ -61,7 +61,7 @@ SEXP rcpp_interleave_point( SEXP& obj, int stride ) {
     Rcpp::_["stride"] = stride
   );
 
-  return Rcpp::List::create();
+  //return Rcpp::List::create();
 
 }
 
