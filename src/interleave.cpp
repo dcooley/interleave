@@ -86,6 +86,7 @@ SEXP rcpp_interleave_line( Rcpp::List& obj, int stride ) {
     SEXP g = obj[ i ];
     Rcpp::List dimension = geometries::coordinates::geometry_dimensions( g );
     Rcpp::IntegerMatrix dims = dimension["dimensions"];
+    //Rcpp::Rcout << "dims: " << dims << std::endl;
     //Rcpp::IntegerMatrix coords = geometries::coordinates::coordinate_indices( g );
 
     R_xlen_t n_geometries = dims.nrow();

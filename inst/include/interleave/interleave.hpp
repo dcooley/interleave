@@ -24,40 +24,40 @@ inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat ) {
 inline SEXP interleave( SEXP& obj ) {
 
   switch( TYPEOF ( obj ) ) {
-  case INTSXP: {
-    if( Rf_isMatrix( obj ) ) {
-    Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( obj );
-    return interleave( im );
-  } else {
-    return obj; // it's already a vector
-  }
-  }
-  case REALSXP: {
-    if( Rf_isMatrix( obj ) ) {
-    Rcpp::NumericMatrix im = Rcpp::as< Rcpp::NumericMatrix >( obj );
-    return interleave( im );
-  } else {
-    return obj; // it's already a vector
-  }
-  }
-  case VECSXP: {
-    if( Rf_isNewList( obj ) ) {
-      Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
-      R_xlen_t n = lst.size();
-      R_xlen_t i;
-      Rcpp::List res( n ); // store interleaved vectors in the same nested-list structure
-
-      for( i = 0; i < n; ++i ) {
-        SEXP obj = lst[ i ];
-        res[ i ] = interleave( obj );
+    case INTSXP: {
+      if( Rf_isMatrix( obj ) ) {
+        Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( obj );
+        return interleave( im );
+      } else {
+        return obj; // it's already a vector
       }
+    }
+    case REALSXP: {
+      if( Rf_isMatrix( obj ) ) {
+        Rcpp::NumericMatrix im = Rcpp::as< Rcpp::NumericMatrix >( obj );
+        return interleave( im );
+      } else {
+        return obj; // it's already a vector
+      }
+    }
+    case VECSXP: {
+      if( Rf_isNewList( obj ) ) {
+        Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
+        R_xlen_t n = lst.size();
+        R_xlen_t i;
+        Rcpp::List res( n ); // store interleaved vectors in the same nested-list structure
 
-    return interleave::utils::unlist_list( res );
-  }
-  }
-  default: {
-    Rcpp::stop("interleave - can not interleave this type of object");
-  }
+        for( i = 0; i < n; ++i ) {
+          SEXP obj = lst[ i ];
+          res[ i ] = interleave( obj );
+        }
+
+      return interleave::utils::unlist_list( res );
+      }
+    }
+    default: {
+      Rcpp::stop("interleave - can not interleave this type of object");
+    }
   }
   return Rcpp::List::create();
 }
