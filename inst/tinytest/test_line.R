@@ -1,11 +1,97 @@
 
-# v <- 1:4
-# interleave:::rcpp_interleave_line( v, 2 )
+v <- 1:4
+expect_error( interleave:::rcpp_interleave_line( v, 2 ), "interleave - expecting a list")
+
+
+m <- matrix(1:4, ncol = 2)
+expect_error( interleave:::rcpp_interleave_line( m, 2 ), "interleave - expecting a list")
+
 
 ## interleave_line() should only accept LIST inputs
-# ## matrix (e.g. LINESTRING)
-# m <- matrix(1:16, ncol = 2)
-# interleave:::rcpp_interleave_line( m, 2 )
-#
-# l <- list( m )
-# interleave:::rcpp_interleave_line( l, 2 )
+## matrix (e.g. LINESTRING)
+m <- matrix(1:16, ncol = 2, byrow = T)
+l <- list( m )
+res <- interleave:::rcpp_interleave_line( l, 2 )
+expect_equal( res$coordinates, 1:16 )
+expect_equal( res$start_indices, 0 ) ## Only one line
+expect_equal( res$stride, 2 )
+
+## Two linestrings (or a polygon)
+l <- list( m, m )
+res <- interleave:::rcpp_interleave_line( l, 2 )
+expect_equal( res$coordinates, c(1:16, 1:16) )
+expect_equal( res$start_indices, c(0,7) ) ## two lines
+expect_equal( res$stride, 2 )
+
+## A mixture of a line and a polygon
+m1 <- matrix(1:4, ncol = 2, byrow = T)
+m2 <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
+l <- list( m1, m2 )
+res <- interleave:::rcpp_interleave_line( l, 2 )
+expect_equal( res$coordinates, c(1:4, 0,0,0,1,1,1,1,0,0,0))
+expect_equal( res$start_indices, c(0, 1) )
+
+### Every possible type of sfg, sfc or any nested set of matrices (or not nested)
+### need to be interleaved
+
+###
+# A list containing
+# \itemize{
+#   \item{dimensions - a 5-column matrix where \itemize{
+#     \item{column 1 - the start-index of the geometry}
+#     \item{column 2 - the end-index of the geometry}
+#     \item{column 3 - the dimension of the geometry}
+#     \item{column 4 - the nesting level of the geometry}
+#     \item{column 5 - the SEXP type of the geometry}
+#     }
+#   }
+#   \item{max_dimension - the maximum dimension in all the geometries}
+#   \item{max_nest - the maximum nesting level in all the geometries}
+# }
+## Test the dimeions are correctly cacluated
+
+## sfg POINT (vector) (1 'line')
+v <- 1L:4L
+dim <- geometries:::rcpp_geometry_dimensions( v )
+expect_true( nrow( dim$dimensions ) == 1 )
+expect_true( dim$max_dimension == 4 )
+expect_true( dim$max_nest == 0 )
+
+
+### sfc POINTs (2 'lines')
+l <- list(1:4, 1:3)
+dim <- geometries:::rcpp_geometry_dimensions( l )
+expect_true( nrow( dim$dimensions ) == 2 )
+expect_true( dim$max_dimension == 4 )
+expect_true( dim$max_nest == 1 )
+
+### sfg LINESTRING (matrix)
+m <- matrix(1:6, ncol = 2)
+dim <- geometries:::rcpp_geometry_dimensions( m )
+expect_true( nrow( dim$dimensions ) == 1 )
+expect_true( dim$max_dimension == 2 )
+expect_true( dim$max_nest == 0 )
+
+### sfg MULTILINESTRING
+### sfg POLYGON
+### sfc LINESTRINGs
+l <- list( m )
+dim <- geometries:::rcpp_geometry_dimensions( l )
+expect_true( nrow( dim$dimensions ) == 1 )
+expect_true( dim$max_dimension == 2 )
+expect_true( dim$max_nest == 1 )
+
+l <- list( m, m )
+dim <- geometries:::rcpp_geometry_dimensions( l )
+expect_true( nrow( dim$dimensions ) == 2 )
+expect_true( dim$max_dimension == 2 )
+expect_true( dim$max_nest == 1 )
+
+### sfg MULTIPOLYGON
+### sfc POLYGON
+l <- list( list( m ) )
+dim <- geometries:::rcpp_geometry_dimensions( l )
+expect_true( nrow( dim$dimensions ) == 1 )
+expect_true( dim$max_dimension == 2 )
+expect_true( dim$max_nest == 2 )
+

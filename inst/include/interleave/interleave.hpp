@@ -51,7 +51,6 @@ inline SEXP interleave( SEXP& obj ) {
           SEXP obj = lst[ i ];
           res[ i ] = interleave( obj );
         }
-
       return interleave::utils::unlist_list( res );
       }
     }

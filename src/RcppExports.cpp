@@ -28,37 +28,37 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_interleave_point
-SEXP rcpp_interleave_point(SEXP& obj, int stride);
-RcppExport SEXP _interleave_rcpp_interleave_point(SEXP objSEXP, SEXP strideSEXP) {
+SEXP rcpp_interleave_point(SEXP& lst, int stride);
+RcppExport SEXP _interleave_rcpp_interleave_point(SEXP lstSEXP, SEXP strideSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP& >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type lst(lstSEXP);
     Rcpp::traits::input_parameter< int >::type stride(strideSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_point(obj, stride));
+    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_point(lst, stride));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_interleave_line
-SEXP rcpp_interleave_line(Rcpp::List& obj, int stride);
-RcppExport SEXP _interleave_rcpp_interleave_line(SEXP objSEXP, SEXP strideSEXP) {
+SEXP rcpp_interleave_line(SEXP& lst, int stride);
+RcppExport SEXP _interleave_rcpp_interleave_line(SEXP lstSEXP, SEXP strideSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List& >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< SEXP& >::type lst(lstSEXP);
     Rcpp::traits::input_parameter< int >::type stride(strideSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_line(obj, stride));
+    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_line(lst, stride));
     return rcpp_result_gen;
 END_RCPP
 }
 // rcpp_interleave_triangle
-SEXP rcpp_interleave_triangle(Rcpp::List& obj);
-RcppExport SEXP _interleave_rcpp_interleave_triangle(SEXP objSEXP) {
+SEXP rcpp_interleave_triangle(Rcpp::List& lst);
+RcppExport SEXP _interleave_rcpp_interleave_triangle(SEXP lstSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List& >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_triangle(obj));
+    Rcpp::traits::input_parameter< Rcpp::List& >::type lst(lstSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_triangle(lst));
     return rcpp_result_gen;
 END_RCPP
 }
