@@ -119,6 +119,8 @@ microbenchmark::microbenchmark(
 
 ## Interleaved object
 
+**For v0.1 this object is only created in internal functions**
+
 - A **coordinate** is a set of values describing a position, typically denoted by `(x, y)`, although any number of values are allowed.
 - The number of values in a **coordinate** is the **stride**. Often referred to as the _dimension_ (XY)
 
@@ -126,8 +128,9 @@ Within the interleaved object
 
 - **coordinates** - all the coordinates as a single, interleaved vector
 - **stride** - the number of values in each coordinate.
-- **n_coordinates** - the number of coordinates in each geometry
 - **start_indices** - the index in the **coordinates** vector where each geometry starts, divided by the stride.
+
+<!-- - **n_coordinates** - the number of coordinates in each geometry -->
 
 Wait, what? Can you explain the **start_indices** again? 
 
@@ -158,16 +161,24 @@ The first geometry obviously starts at index 0. The second geometry starts at in
 
 Finally, you can get the total number of coordinates for all the geometries by `length( coordinates ) / stride`
 
+## Primitive Types
 
-## Interleave Point
+**For v0.1 this functions are only accessible through internal functions**
+
+- `interleave:::rcpp_interleave_point()`
+- `interleave:::rcpp_interleave_line()`
+- `interleave:::rcpp_interleave_triangle()`
+
+
+### Interleave Point
 
 
 ```{r}
 
 ## Assume a 'linestring' object (i.e., a matrix)
-( mat <- matrix(1:10, ncol = 2) )
+( lst <- list( matrix(1:10, ncol = 2) ) )
 
-interleave:::rcpp_interleave_point( mat, 2 )
+interleave:::rcpp_interleave_point( lst, 2 )
 ```
 
 
@@ -183,7 +194,8 @@ y2 <- c(0.2, 0.2, 0.4, 0.6, 0.4)
 mat1 <- cbind(x1, y1)
 mat2 <- cbind(x2, y2)
 
-lst <- list( mat1, mat2 )
+## only works on a 'collection'
+lst <- list( list( mat1, mat2 ) )
 
 interleave:::rcpp_interleave_triangle( lst )
 

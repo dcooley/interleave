@@ -52,13 +52,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_interleave_triangle
-SEXP rcpp_interleave_triangle(Rcpp::List& lst);
-RcppExport SEXP _interleave_rcpp_interleave_triangle(SEXP lstSEXP) {
+SEXP rcpp_interleave_triangle(SEXP& obj);
+RcppExport SEXP _interleave_rcpp_interleave_triangle(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List& >::type lst(lstSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_triangle(lst));
+    Rcpp::traits::input_parameter< SEXP& >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_triangle(obj));
     return rcpp_result_gen;
 END_RCPP
 }

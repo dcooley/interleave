@@ -71,18 +71,12 @@ namespace primitives {
       SEXP g = lst[ i ];
       Rcpp::List dimension = geometries::coordinates::geometry_dimensions( g );
       Rcpp::IntegerMatrix dims = dimension["dimensions"];
-      //Rcpp::Rcout << "dims: " << dims << std::endl;
-      //Rcpp::IntegerMatrix coords = geometries::coordinates::coordinate_indices( g );
 
       R_xlen_t n_geometries = dims.nrow();
       R_xlen_t n_coordinates = dims( n_geometries - 1, 1 );
 
-      //Rcpp::Rcout << "n_coordinates " << n_coordinates << std::endl;
-
       // n_coordinates is the total number of coordinates for the given sfg
       // this is what the data needs to be expanded by.
-      //n_coordinates = n_coordinates + 1;
-      //geometry_coordinates[ i ] = n_coordinates;
 
       Rcpp::IntegerVector start_indices = dims( Rcpp::_, 0 );
       start_indices = start_indices + total_coordinates;

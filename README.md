@@ -119,8 +119,8 @@ microbenchmark::microbenchmark(
 )
 # Unit: milliseconds
 #   expr       min       lq     mean   median       uq      max neval
-#  leave 11.277468 13.32364 25.82973 16.74018 49.91673 64.96434    25
-#  baset  9.901499 11.93108 20.68320 15.32377 16.84644 55.94543    25
+#  leave 10.937987 11.98415 22.37443 15.51152 21.00816 51.49221    25
+#  baset  9.915276 10.78936 19.67426 13.64448 14.53845 57.36662    25
 
 
 
@@ -142,11 +142,13 @@ microbenchmark::microbenchmark(
 )
 # Unit: microseconds
 #   expr    min     lq      mean median     uq       max neval
-#  leave  4.208  4.977   5.96672  5.259  6.193    18.895    25
-#  baset 15.456 16.204 719.45748 17.162 17.702 17567.680    25
+#  leave  4.576  5.145   6.44024  5.377  5.852    20.974    25
+#  baset 15.663 16.256 666.71808 16.852 17.914 16249.746    25
 ```
 
 ## Interleaved object
+
+**For v0.1 this object is only created in internal functions**
 
   - A **coordinate** is a set of values describing a position, typically
     denoted by `(x, y)`, although any number of values are allowed.
@@ -158,9 +160,10 @@ Within the interleaved object
   - **coordinates** - all the coordinates as a single, interleaved
     vector
   - **stride** - the number of values in each coordinate.
-  - **n\_coordinates** - the number of coordinates in each geometry
   - **start\_indices** - the index in the **coordinates** vector where
     each geometry starts, divided by the stride.
+
+<!-- - **n_coordinates** - the number of coordinates in each geometry -->
 
 Wait, what? Can you explain the **start\_indices** again?
 
@@ -220,12 +223,22 @@ index 14 (using 0-based indexing)
 Finally, you can get the total number of coordinates for all the
 geometries by `length( coordinates ) / stride`
 
-## Interleave Point
+## Primitive Types
+
+**For v0.1 this functions are only accessible through internal
+functions**
+
+  - `interleave:::rcpp_interleave_point()`
+  - `interleave:::rcpp_interleave_line()`
+  - `interleave:::rcpp_interleave_triangle()`
+
+### Interleave Point
 
 ``` r
 
 ## Assume a 'linestring' object (i.e., a matrix)
-( mat <- matrix(1:10, ncol = 2) )
+( lst <- list( matrix(1:10, ncol = 2) ) )
+# [[1]]
 #      [,1] [,2]
 # [1,]    1    6
 # [2,]    2    7
@@ -233,7 +246,7 @@ geometries by `length( coordinates ) / stride`
 # [4,]    4    9
 # [5,]    5   10
 
-interleave:::rcpp_interleave_point( mat, 2 )
+interleave:::rcpp_interleave_point( lst, 2 )
 # $coordinates
 #  [1]  1  6  2  7  3  8  4  9  5 10
 # 
@@ -256,7 +269,8 @@ y2 <- c(0.2, 0.2, 0.4, 0.6, 0.4)
 mat1 <- cbind(x1, y1)
 mat2 <- cbind(x2, y2)
 
-lst <- list( mat1, mat2 )
+## only works on a 'collection'
+lst <- list( list( mat1, mat2 ) )
 
 interleave:::rcpp_interleave_triangle( lst )
 # $coordinates

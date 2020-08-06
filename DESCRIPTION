@@ -16,6 +16,7 @@ LinkingTo:
     geometries,
     Rcpp
 Imports: 
+    geometries,
     Rcpp
 Suggests:
     tinytest,
