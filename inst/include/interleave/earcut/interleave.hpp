@@ -105,21 +105,20 @@ public:
 #include "interleave/earcut/earcut.hpp"
 
 namespace interleave {
-
 namespace earcut {
 
-inline SEXP earcut(
-    Rcpp::List& polygon
-) {
+  inline SEXP earcut(
+      Rcpp::List& polygon
+  ) {
 
-  // triangluated interleaved gives a
-  using Point = std::vector< double >;
-  using Polygon = std::vector< Point >;
-  using Polygons = std::vector< Polygon >;
-  Polygons polyrings = Rcpp::as< Polygons >( polygon );
+    // triangluated interleaved gives a
+    using Point = std::vector< double >;
+    using Polygon = std::vector< Point >;
+    using Polygons = std::vector< Polygon >;
+    Polygons polyrings = Rcpp::as< Polygons >( polygon );
 
-  return ::earcut::earcut< uint32_t >( polyrings );
-}
+    return ::earcut::earcut< uint32_t >( polyrings );
+  }
 
 } // earcut
 } // interleave

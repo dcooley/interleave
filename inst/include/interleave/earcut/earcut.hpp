@@ -22,6 +22,7 @@ template <typename N = uint32_t>
 class Earcut {
 public:
 
+  std::vector< N > indices;
   std::vector< double > xyzcoords;
   std::size_t vertices = 0;
   std::size_t stride = 0;
@@ -137,7 +138,7 @@ private:
 template <typename N > template <typename Polygon>
 void Earcut<N>::operator()(const Polygon& points) {
   // reset
-  //indices.clear();
+  indices.clear();
   xyzcoords.clear();
   vertices = 0;
 
@@ -156,7 +157,7 @@ void Earcut<N>::operator()(const Polygon& points) {
 
   //estimate size of nodes and indices
   nodes.reset(len * 3 / 2);
-  //indices.reserve(len + points[0].size());
+  indices.reserve(len + points[0].size());
   stride = points[0][0].size();
 
   xyzcoords.reserve( ( len + points[0].size() ) * stride );
@@ -280,6 +281,10 @@ void Earcut<N>::earcutLinked(Node* ear, const Polygon& points, int pass) {
 
     if (hashing ? isEarHashed(ear) : isEar(ear)) {
 
+      indices.emplace_back(prev->i);
+      indices.emplace_back(ear->i);
+      indices.emplace_back(next->i);
+
       std::vector< double > p_coords = prev->coords;
       std::vector< double > e_coords = ear->coords;
       std::vector< double > n_coords = next->coords;
@@ -398,9 +403,9 @@ Earcut<N>::cureLocalIntersections(Node* start) {
 
     // a self-intersection where edge (v[i-1],v[i]) intersects (v[i+1],v[i+2])
     if (!equals(a, b) && intersects(a, p, p->next, b) && locallyInside(a, b) && locallyInside(b, a)) {
-      // indices.emplace_back(a->i);
-      // indices.emplace_back(p->i);
-      // indices.emplace_back(b->i);
+      indices.emplace_back(a->i);
+      indices.emplace_back(p->i);
+      indices.emplace_back(b->i);
 
       xyzcoords.emplace_back(a->x);
       xyzcoords.emplace_back(a->y);
@@ -848,12 +853,14 @@ SEXP earcut(const Polygon& poly) {
   earcut(poly);
 
   std::vector< double > coords = std::move( earcut.xyzcoords );
+  std::vector< N > indices = std::move( earcut.indices );
 
   //return Rcpp::wrap( coords );
   std::size_t stride = std::move( earcut.stride );
 
   return Rcpp::List::create(
     Rcpp::_["coordinates"] = Rcpp::wrap( coords ),
+    Rcpp::_["indices"] = Rcpp::wrap( indices ),
     Rcpp::_["stride"] = stride
   );
 

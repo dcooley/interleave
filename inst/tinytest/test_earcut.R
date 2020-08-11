@@ -16,3 +16,12 @@ m <- matrix(c(0,0,1,0,1,1,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
 l <- list( m )
 ec <- interleave:::rcpp_earcut( l )
 ## the 'Z' coordinate is kept as-is on each coordinate
+
+## what does earcutting triangles do?
+m <- matrix(c(0,0,1,0,1,1,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+l <- list( m )
+ec <- interleave:::rcpp_earcut( l )
+tris <- matrix( ec$coordinates, ncol = 3, byrow = T)
+
+interleave:::rcpp_earcut( list( tris ) )
+ec
