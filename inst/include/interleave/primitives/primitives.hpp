@@ -147,13 +147,15 @@ namespace primitives {
   // and it is equal to the number of rows
   inline SEXP interleave_triangle(
       SEXP& obj,
-      Rcpp::List properties,
+      Rcpp::List list_properties,
       bool keep_indices = true
   ) {
 
     if( !Rf_isNewList( obj ) ) {
       Rcpp::stop("interleave - expecting a list");
     }
+
+    Rcpp::List properties = Rcpp::clone( list_properties );
 
     Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
 
@@ -289,6 +291,8 @@ namespace primitives {
       input_indices = interleave::utils::unlist_list( res_indices ); // can't unlist_list this if it's NULL
       property_indexes = Rcpp::as< Rcpp::IntegerVector >( input_indices );
     }
+
+    Rcpp::Rcout << "property_indexes: " << property_indexes << std::endl;
 
     // Shuffling properties
     if( shuffle_properties ) {

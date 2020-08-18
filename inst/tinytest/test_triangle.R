@@ -107,7 +107,7 @@ expect_equal( mat[ res$input_index + 1, ], res_mat )
 m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
 m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
 
-poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), "XY", FALSE )
+poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), FALSE, "XY" )
 res <- interleave:::rcpp_interleave_triangle( poly, list() )
 
 res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
@@ -120,7 +120,7 @@ m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
 m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
 m3 <- matrix(c(2,2,1,2,3,1,3,3,1,3,2,1,2,2,1), ncol = 3, byrow = T)
 
-poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2, m3), "XY", FALSE )
+poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2, m3), FALSE, "XY" )
 res <- interleave:::rcpp_interleave_triangle( poly, list() )
 
 res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
@@ -135,6 +135,38 @@ p2 <- letters[5:1]
 p <- list( p1, p2)
 l <- list( list( m ) )
 
-interleave:::rcpp_interleave_triangle( l, p )
+res <- interleave:::rcpp_interleave_triangle( l, p )
+
+expect_equal( p1[ res$input_index + 1 ], res$properties[[1]] )
+
+## input object is not updated by-reference
+expect_equal( p[[1]], letters[1:5] )
+expect_equal( p[[2]], letters[5:1] )
+
+## multiple SFGs with properties
+
+df <- data.frame(
+  id = c(1,1,1,1,1,2,2,2,2,2)
+  , x = c(0,0,1,1,0, 2,2,3,3,2)
+  , y = c(0,1,1,0,0, 2,3,3,2,2)
+)
+
+p1 <- letters[1:5]
+p2 <- letters[5:1]
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "id")
+sf$val <- list(p1,p2)
 
 
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
+## properties need to be in a list to reflect the columns of a data.frame
+
+expect_equal(
+  res$properties[[1]]
+  , c(p1,p2)[ res$input_index + 1 ]
+)
+
+
+## - error-handling if the list elements aren't the correct size
+## - non-closed polygons - does the property indexing work if the last (closed) point
+## -- doesn't have a property
