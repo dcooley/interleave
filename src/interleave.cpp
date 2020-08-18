@@ -69,8 +69,8 @@ SEXP rcpp_interleave_line( SEXP& lst, int stride ) {
  *
  */
 // [[Rcpp::export]]
-SEXP rcpp_interleave_triangle( SEXP& obj ) {
-  return interleave::primitives::interleave_triangle( obj );
+SEXP rcpp_interleave_triangle( SEXP& obj, Rcpp::List properties ) {
+  return interleave::primitives::interleave_triangle( obj, properties );
 }
 
 

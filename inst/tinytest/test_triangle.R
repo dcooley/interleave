@@ -1,6 +1,6 @@
 
 m <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
-expect_error( interleave:::rcpp_interleave_triangle( m ), "interleave - expecting a list" )
+expect_error( interleave:::rcpp_interleave_triangle( m, list() ), "interleave - expecting a list" )
 
 ## single polygon
 ## This won't work for trinagulating, because tringulating needs a collection,
@@ -9,14 +9,14 @@ expect_error( interleave:::rcpp_interleave_triangle( m ), "interleave - expectin
 m <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 l <- list( m )
 expect_silent( interleave:::rcpp_earcut( l ) )
-expect_error( interleave:::rcpp_interleave_triangle( l ), "interleave - a list must only contain matrices")
+expect_error( interleave:::rcpp_interleave_triangle( l, list() ), "interleave - a list must only contain matrices")
 
 ## single multipolygon is treated as two POLYGONs
 m1 <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 h <- matrix(c(0.25,0.25,0.25,0.75,0.75,0.75,0.75,0.25,0.25,0.25), ncol = 2, byrow = T)
 m2 <- matrix(c(2,2,2,3,3,3,3,2,2,2), ncol = 2, byrow = T)
 l <- list( list( m1, h ), list( m2 ) )
-expect_silent( interleave:::rcpp_interleave_triangle( l ) )
+expect_silent( interleave:::rcpp_interleave_triangle( l, list() ) )
 ## but it won't work for earcutting
 expect_error( interleave:::rcpp_earcut( l ), "interleave - a list must only contain matrices" )
 
@@ -57,14 +57,84 @@ expect_true( nrow( dim$dimensions ) == 2 ) ## because there are two separate obj
 m <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 h <- matrix(c(0.25,0.25,0.25,0.75,0.75,0.75,0.75,0.25,0.25,0.25), ncol = 2, byrow = T)
 l <- list( m, h )
-expect_error( interleave:::rcpp_interleave_triangle( l ), "interleave - a list must only contain matrices" )
+expect_error( interleave:::rcpp_interleave_triangle( l, list() ), "interleave - a list must only contain matrices" )
 ## TODO: ^^ possibly change this error by checking for the internal object type inside each
 ## list element of the obj (in rcpp_interleave_trinagel)
 ##
 ## Nest it inside an 'sfc'
 l <- list( list( m, h )  )
-res <- interleave:::rcpp_interleave_triangle( l )
+res <- interleave:::rcpp_interleave_triangle( l, list() )
 ec <- interleave:::rcpp_earcut( l[[1]] )
 expect_equal( res$coordinates, ec$coordinates )
+
+
+## Testing Z(M) coordinates remain on the correct triangle
+m <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+sf <- sfheaders::sf_polygon(m)
+
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list() )
+res_mat <- matrix( res$coordinates, ncol = 3, byrow = T)
+
+expect_equal( m[res$input_index + 1, ], res_mat )
+
+
+## Testing on a non-closed matrix
+m <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4), ncol = 3, byrow = T)
+sf <- sfheaders::sf_polygon(m)
+res1 <- interleave:::rcpp_interleave_triangle( sf$geometry, list() )
+
+m <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+sf <- sfheaders::sf_polygon(m)
+res2 <- interleave:::rcpp_interleave_triangle( sf$geometry, list() )
+
+expect_equal(res1, res2)
+
+## Test of the 'input_index' refers to the LINE, or the POLYGON.
+## i.e., if the Polygon has a hole, do the indices of teh hole start from 0, or
+## from polygon.nrow() ?
+m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
+mat <- rbind(m1, m2)
+
+poly <- sfheaders::sfg_polygon(list(m1,m2))
+res <- interleave:::rcpp_interleave_triangle( list(poly), list() )
+
+res_mat <- matrix( res$coordinates, ncol = 3, byrow = T)
+
+expect_equal( mat[ res$input_index + 1, ], res_mat )
+
+## Testing 2-polygons have the correct input_index returned
+m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
+
+poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), "XY", FALSE )
+res <- interleave:::rcpp_interleave_triangle( poly, list() )
+
+res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
+mat <- rbind(m1, m2)
+expect_equal( mat[ res$input_index + 1, ], res_mat )
+
+
+## Testing 3-polygons have the correct input_index returned
+m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
+m3 <- matrix(c(2,2,1,2,3,1,3,3,1,3,2,1,2,2,1), ncol = 3, byrow = T)
+
+poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2, m3), "XY", FALSE )
+res <- interleave:::rcpp_interleave_triangle( poly, list() )
+
+res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
+mat <- rbind(m1, m2, m3)
+expect_equal( mat[ res$input_index + 1, ], res_mat )
+
+
+## Testing properties are shuffled with indexes
+m <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
+p1 <- letters[1:5]
+p2 <- letters[5:1]
+p <- list( p1, p2)
+l <- list( list( m ) )
+
+interleave:::rcpp_interleave_triangle( l, p )
 
 

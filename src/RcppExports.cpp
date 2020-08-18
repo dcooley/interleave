@@ -52,13 +52,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_interleave_triangle
-SEXP rcpp_interleave_triangle(SEXP& obj);
-RcppExport SEXP _interleave_rcpp_interleave_triangle(SEXP objSEXP) {
+SEXP rcpp_interleave_triangle(SEXP& obj, Rcpp::List properties);
+RcppExport SEXP _interleave_rcpp_interleave_triangle(SEXP objSEXP, SEXP propertiesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_triangle(obj));
+    Rcpp::traits::input_parameter< Rcpp::List >::type properties(propertiesSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_interleave_triangle(obj, properties));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -68,7 +69,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_interleave_rcpp_interleave", (DL_FUNC) &_interleave_rcpp_interleave, 1},
     {"_interleave_rcpp_interleave_point", (DL_FUNC) &_interleave_rcpp_interleave_point, 2},
     {"_interleave_rcpp_interleave_line", (DL_FUNC) &_interleave_rcpp_interleave_line, 2},
-    {"_interleave_rcpp_interleave_triangle", (DL_FUNC) &_interleave_rcpp_interleave_triangle, 1},
+    {"_interleave_rcpp_interleave_triangle", (DL_FUNC) &_interleave_rcpp_interleave_triangle, 2},
     {NULL, NULL, 0}
 };
 
