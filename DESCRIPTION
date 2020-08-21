@@ -19,6 +19,7 @@ Imports:
     geometries,
     Rcpp
 Suggests:
+    sfheaders,
     tinytest,
     covr
 SystemRequirements: C++11
