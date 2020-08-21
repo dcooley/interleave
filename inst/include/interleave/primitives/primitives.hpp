@@ -175,6 +175,10 @@ namespace primitives {
     Rcpp::List res_coordinates( n );
     Rcpp::List res_start_indices( n );
     Rcpp::List res_indices( n );
+
+    R_xlen_t n_properties = properties.length();
+    Rcpp::List res_properties( n_properties );
+
     SEXP input_indices; // filled later if required
     Rcpp::IntegerVector property_indexes;
     //Rcpp::List res_original_geometry_index( n );
@@ -252,6 +256,7 @@ namespace primitives {
         //res_original_geometry_index[ i ] = original_index;
       }
 
+      //res_indices.attr("names") = properties.attr("names");
       total_coordinates = total_coordinates + n_coordinates;
     }
 
@@ -297,13 +302,13 @@ namespace primitives {
       // but how should it be returned?
       // as a 'properties' object?
 
-      R_xlen_t n_properties = properties.length();
+
       for( i = 0; i < n_properties; ++i ) {
         // each property will be a list of vectors
         Rcpp::List this_property = properties[ i ];
         SEXP p = interleave::utils::unlist_list( this_property );
 
-        properties[ i ] = subset_vector( p, property_indexes );
+        res_properties[ i ] = subset_vector( p, property_indexes );
 
       }
 
@@ -318,7 +323,7 @@ namespace primitives {
       Rcpp::_["input_index"] = input_indices,  // we don't even need to return these?? because we're sorting out the shuffling in the function
       // Rcpp::_["geometry_index"] = interleave::utils::unlist_list( res_original_geometry_index ),
       // Rcpp::_["n_coordinates"] = n_coordinates,
-      Rcpp::_["properties"] = properties,
+      Rcpp::_["properties"] = res_properties,
       Rcpp::_["stride"] = stride
     );
   }

@@ -135,6 +135,40 @@ p2 <- letters[5:1]
 p <- list( p1, p2)
 l <- list( list( m ) )
 
-interleave:::rcpp_interleave_triangle( l, p )
+res <- interleave:::rcpp_interleave_triangle( l, p )
+
+expect_equal( p1[ res$input_index + 1 ], res$properties[[1]]  )
+expect_equal( p2[ res$input_index + 1 ], res$properties[[2]]  )
+
+## Testing a multi-row sf object with multi-row list-property columns are correctly shuffled
+m1 <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
+m2 <- matrix(c(0,0,0,2,2,2,2,0,0,0), ncol = 2, byrow = T)
+m1 <- cbind(1, m1)
+m2 <- cbind(2, m2)
+ls <- rbind(m1,m2)
+
+sf <- sfheaders::sf_polygon(
+  obj = ls
+  , polygon_id = 1
+)
+
+p1 <- letters[1:5]
+p2 <- letters[21:25]
+p <- list( p1, p2)
+
+sf$prop <- p
+sf$prop2 <- list(p2, p1)
+
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$prop ) )
+
+## the number of properties must match the number of coordinates
+expect_true(
+  ( length(res$coordinates) / res$stride ) == length( res$properties[[1]] )
+)
+
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, sf[, c("prop2"), drop = FALSE ] )
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, sf[, c("prop","prop2") ] )
+
+
 
 
