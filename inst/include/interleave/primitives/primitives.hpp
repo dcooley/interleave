@@ -175,7 +175,7 @@ namespace primitives {
     int stride;
 
     Rcpp::List res_coordinates( n );
-    Rcpp::List res_start_indices( n );
+    //Rcpp::List res_start_indices( n );
     Rcpp::List res_indices( n );
 
     R_xlen_t n_properties = properties.length();
@@ -185,6 +185,8 @@ namespace primitives {
     Rcpp::IntegerVector property_indexes;
     //Rcpp::List res_original_geometry_index( n );
     //Rcpp::List res_properties( n );
+
+    Rcpp::IntegerVector n_coordinates( n ); // stores how many coordinates make up each geometr after earcutting (i.e, the sum of all the triangle coordiantes)
 
     //R_xlen_t max_index = 0;
     R_xlen_t total_rows = 0;
@@ -202,7 +204,7 @@ namespace primitives {
       Rcpp::NumericVector nv = lst_coords["coordinates"];
       Rcpp::IntegerVector iv = lst_coords["indices"];
 
-      //Rcpp::Rcout << "indices: " << iv << std::endl;
+      // Rcpp::Rcout << "indices: " << iv << std::endl;
 
       int this_stride = static_cast< int >( lst_coords["stride"] );
 
@@ -217,7 +219,7 @@ namespace primitives {
       // - and each geometry is 3 sets of coordinates
 
 
-      R_xlen_t n_coordinates = iv.length(); // nv.length() / this_stride;
+      R_xlen_t n_coords = iv.length(); // nv.length() / this_stride;
       //int int_coords = static_cast< int >( n_coordinates );
       //Rcpp::IntegerVector original_index( int_coords, i );
       //Rcpp::IntegerVector original_index( n_coordinates );
@@ -225,15 +227,16 @@ namespace primitives {
 
       // start indices is every 3rd coordinate?
       // 0, 2, 5, 8, 11, 14,
-      R_xlen_t n_indices = n_coordinates / 3; // beach each triangle has 3 coordinates
+      R_xlen_t n_indices = n_coords / 3; // because each triangle has 3 coordinates
       Rcpp::IntegerVector start_indices( n_indices );
+      n_coordinates[ i ] = n_coords;
 
-      for( j = 0; j < n_indices; ++j ) {
-        start_indices[ j ] = ( j + total_coordinates ) * 3;
-      }
+      // for( j = 0; j < n_indices; ++j ) {
+      //   start_indices[ j ] = ( j + total_coordinates ) * 3;
+      // }
 
       res_coordinates[ i ] = nv; //lst_coords["coordinates"];
-      res_start_indices[ i ] = start_indices;
+      //res_start_indices[ i ] = start_indices;
 
       //Rcpp::Rcout << "total_coordinates: " << total_coordinates << std::endl;
 
@@ -259,7 +262,7 @@ namespace primitives {
       }
 
       //res_indices.attr("names") = properties.attr("names");
-      total_coordinates = total_coordinates + n_coordinates;
+      total_coordinates = total_coordinates + n_coords;
     }
 
 
@@ -297,7 +300,7 @@ namespace primitives {
       property_indexes = Rcpp::as< Rcpp::IntegerVector >( input_indices );
     }
 
-    Rcpp::Rcout << "property_indexes: " << property_indexes << std::endl;
+    // Rcpp::Rcout << "property_indexes: " << property_indexes << std::endl;
 
     // Shuffling properties
     if( shuffle_properties ) {
@@ -326,7 +329,7 @@ namespace primitives {
       //Rcpp::_["start_indices"] = interleave::utils::unlist_list( res_start_indices ),
       Rcpp::_["input_index"] = input_indices,  // we don't even need to return these?? because we're sorting out the shuffling in the function
       // Rcpp::_["geometry_index"] = interleave::utils::unlist_list( res_original_geometry_index ),
-      // Rcpp::_["n_coordinates"] = n_coordinates,
+      Rcpp::_["n_coordinates"] = n_coordinates,
       Rcpp::_["properties"] = res_properties,
       Rcpp::_["stride"] = stride
     );

@@ -197,7 +197,7 @@ void Earcut<N>::operator()(const Polygon& points) {
 template <typename N> template <typename Ring>
 typename Earcut<N>::Node*
 Earcut<N>::linkedList(const Ring& points, const bool clockwise) {
-  using Point = typename Ring::value_type;
+  //using Point = typename Ring::value_type;
   double sum = 0;
   const std::size_t len = points.size();
   std::size_t i, j;

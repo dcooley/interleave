@@ -107,7 +107,7 @@ expect_equal( mat[ res$input_index + 1, ], res_mat )
 m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
 m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
 
-poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), FALSE, "XY" )
+poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), "XY", FALSE )
 res <- interleave:::rcpp_interleave_triangle( poly, list() )
 
 res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
@@ -120,7 +120,7 @@ m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
 m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
 m3 <- matrix(c(2,2,1,2,3,1,3,3,1,3,2,1,2,2,1), ncol = 3, byrow = T)
 
-poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2, m3), FALSE, "XY" )
+poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2, m3), "XY", FALSE )
 res <- interleave:::rcpp_interleave_triangle( poly, list() )
 
 res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
@@ -136,7 +136,6 @@ p <- list( p1, p2)
 l <- list( list( m ) )
 
 res <- interleave:::rcpp_interleave_triangle( l, p )
-<<<<<<< HEAD
 
 expect_equal( p1[ res$input_index + 1 ], res$properties[[1]]  )
 expect_equal( p2[ res$input_index + 1 ], res$properties[[2]]  )
@@ -170,15 +169,11 @@ expect_true(
 res <- interleave:::rcpp_interleave_triangle( sf$geometry, sf[, c("prop2"), drop = FALSE ] )
 res <- interleave:::rcpp_interleave_triangle( sf$geometry, sf[, c("prop","prop2") ] )
 
-
-=======
->>>>>>> fff1963432b0dad17c7ba4d45604fcfc5c361829
-
-expect_equal( p1[ res$input_index + 1 ], res$properties[[1]] )
+expect_equal( c(p1,p2)[ res$input_index + 1 ], res$properties[[1]] )
 
 ## input object is not updated by-reference
 expect_equal( p[[1]], letters[1:5] )
-expect_equal( p[[2]], letters[5:1] )
+expect_equal( p[[2]], letters[21:25] )
 
 ## multiple SFGs with properties
 
@@ -207,3 +202,8 @@ expect_equal(
 ## - error-handling if the list elements aren't the correct size
 ## - non-closed polygons - does the property indexing work if the last (closed) point
 ## -- doesn't have a property
+
+
+
+
+
