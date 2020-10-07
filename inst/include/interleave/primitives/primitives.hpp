@@ -4,9 +4,8 @@
 #include "interleave/earcut/interleave.hpp"
 #include "interleave/interleave.hpp"
 
-//#include "geometries/coordinates/dimensions.hpp"
-
 #include "geometries/utils/sexp/sexp.hpp"
+#include "geometries/coordinates/dimensions.hpp"
 
 namespace interleave {
 namespace primitives {
@@ -33,10 +32,24 @@ namespace primitives {
       Rcpp::stop("interleave - empty list");
     }
 
+    R_xlen_t i;
     R_xlen_t total_size = 0;
+
+    Rcpp::List dimension = geometries::coordinates::geometry_dimensions( obj );
+    Rcpp::IntegerMatrix dims = dimension[ "dimensions" ];
+    R_xlen_t n_geometries = dims.nrow();  // the number of sfg objects
+
+    // for storing the number of coordinates PER sfg
+    // this becomes our 'repeats' vector
+    Rcpp::IntegerVector geometry_coordinates( n_geometries );
+    //geometry_coordinates[]
+    for( i = 0; i < n_geometries; ++i ) {
+      geometry_coordinates[ i ] = dims( i, 1 ) - dims( i, 0 ) + 1;
+    }
+
     Rcpp::List lst_sizes = interleave::utils::list_rows( lst, total_size );
     Rcpp::IntegerVector n_coordinates = interleave::utils::unlist_list( lst_sizes );
-    R_xlen_t n = n_coordinates.length();
+    R_xlen_t n = n_coordinates.length(); // the total number of coordinates
 
     R_xlen_t total_coordinates = Rcpp::sum( n_coordinates );
 
@@ -49,7 +62,6 @@ namespace primitives {
 
     } else if ( primitive_type == INTERLEAVE_LINE ) {
       Rcpp::IntegerVector si( n );
-      R_xlen_t i;
       si[0] = 0; // always starts at index 0
       for( i = 1; i < n; ++i ) {
         si[ i ] = si[ i - 1 ] + n_coordinates[ i - 1 ];
@@ -59,10 +71,10 @@ namespace primitives {
       Rcpp::stop("interleave - unknown primitive type");
     }
 
-
     return Rcpp::List::create(
       Rcpp::_["coordinates"] = interleave::interleave( obj ),
       Rcpp::_["start_indices"] = start_indices,
+      Rcpp::_["geometry_coordinates"] = geometry_coordinates,
       Rcpp::_["total_coordinates"] = total_coordinates,
       Rcpp::_["n_coordinates"] = n_coordinates,
       Rcpp::_["stride"] = stride

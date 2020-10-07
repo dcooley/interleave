@@ -68,8 +68,10 @@ expect_equal( res$coordinates, coords )
 
 ## start_indices should be one for each matrix
 expect_true( length( res$start_indices ) == 7)
+expect_equal( res$start_indices, c(0, 1, 4, 7, 10, 13, 16 ))
 expect_true( res$total_coordinates == 19 )
 expect_equal( res$n_coordinates, c(1,3,3,3,3,3,3) )
+expect_equal( res$geometry_coordinates, c(1,3,6,9) )
 
 
 ###
