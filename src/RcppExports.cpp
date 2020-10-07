@@ -51,6 +51,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_list_size
+SEXP rcpp_list_size(Rcpp::List lst);
+RcppExport SEXP _interleave_rcpp_list_size(SEXP lstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type lst(lstSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_list_size(lst));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_interleave_triangle
 SEXP rcpp_interleave_triangle(SEXP& obj, Rcpp::List properties);
 RcppExport SEXP _interleave_rcpp_interleave_triangle(SEXP objSEXP, SEXP propertiesSEXP) {
@@ -69,6 +80,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_interleave_rcpp_interleave", (DL_FUNC) &_interleave_rcpp_interleave, 1},
     {"_interleave_rcpp_interleave_point", (DL_FUNC) &_interleave_rcpp_interleave_point, 2},
     {"_interleave_rcpp_interleave_line", (DL_FUNC) &_interleave_rcpp_interleave_line, 2},
+    {"_interleave_rcpp_list_size", (DL_FUNC) &_interleave_rcpp_list_size, 1},
     {"_interleave_rcpp_interleave_triangle", (DL_FUNC) &_interleave_rcpp_interleave_triangle, 2},
     {NULL, NULL, 0}
 };

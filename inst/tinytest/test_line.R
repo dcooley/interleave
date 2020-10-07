@@ -15,13 +15,17 @@ res <- interleave:::rcpp_interleave_line( l, 2 )
 expect_equal( res$coordinates, 1:16 )
 expect_equal( res$start_indices, 0 ) ## Only one line
 expect_equal( res$stride, 2 )
+expect_equal( sum( res$total_coordinates ), sum(sapply(l, nrow)) )
+expect_equal( res$n_coordinates, sapply(l, nrow) )
 
 ## Two linestrings (or a polygon)
 l <- list( m, m )
 res <- interleave:::rcpp_interleave_line( l, 2 )
 expect_equal( res$coordinates, c(1:16, 1:16) )
-expect_equal( res$start_indices, c(0,7) ) ## two lines
+expect_equal( res$start_indices, c(0,8) ) ## two lines
 expect_equal( res$stride, 2 )
+expect_equal( sum( res$total_coordinates ), sum(sapply(l, nrow)) )
+expect_equal( res$n_coordinates, sapply(l, nrow) )
 
 ## A mixture of a line and a polygon
 m1 <- matrix(1:4, ncol = 2, byrow = T)
@@ -29,10 +33,44 @@ m2 <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 l <- list( m1, m2 )
 res <- interleave:::rcpp_interleave_line( l, 2 )
 expect_equal( res$coordinates, c(1:4, 0,0,0,1,1,1,1,0,0,0))
-expect_equal( res$start_indices, c(0, 1) )
+expect_equal( res$start_indices, c(0, 2) )
+expect_equal( sum( res$total_coordinates ), sum(sapply(l, nrow)) )
+expect_equal( res$n_coordinates, sapply(l, nrow) )
+
 
 ### Every possible type of sfg, sfc or any nested set of matrices (or not nested)
 ### need to be interleaved
+
+m1 <- matrix(1:6, ncol = 2, byrow = T)
+m2 <- matrix(7:12, ncol = 2, byrow = T)
+m3 <- matrix(13:18, ncol = 2, byrow = T)
+
+l <- list(
+  1:2 ## POINT
+  , m1 ## LINESTRING
+  , list( m1, m2 ) ## POLYGON / MULTILINESTRING
+  , list( list( m1 ), list( m2, m3 ) ) ## MULTIPOLYGON
+)
+
+res <- interleave:::rcpp_interleave_line( l, 2 )
+
+coords <- c(
+  1:2
+  , as.vector( t(m1) )
+  , as.vector( t(m1) )
+  , as.vector( t(m2) )
+  , as.vector( t(m1) )
+  , as.vector( t(m2) )
+  , as.vector( t(m3) )
+)
+
+expect_equal( res$coordinates, coords )
+
+## start_indices should be one for each matrix
+expect_true( length( res$start_indices ) == 7)
+expect_true( res$total_coordinates == 19 )
+expect_equal( res$n_coordinates, c(1,3,3,3,3,3,3) )
+
 
 ###
 # A list containing

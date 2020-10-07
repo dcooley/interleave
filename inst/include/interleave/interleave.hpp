@@ -51,6 +51,11 @@ inline SEXP interleave( SEXP& obj ) {
           SEXP obj = lst[ i ];
           res[ i ] = interleave( obj );
         }
+
+      // TODO:
+      // keep track of how many rows of each matrix were interleaved
+      // so we know how many coordinates were in each individual LINE (ring)
+
       return interleave::utils::unlist_list( res );
       }
     }

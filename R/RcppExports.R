@@ -17,6 +17,10 @@ rcpp_interleave_line <- function(lst, stride) {
     .Call(`_interleave_rcpp_interleave_line`, lst, stride)
 }
 
+rcpp_list_size <- function(lst) {
+    .Call(`_interleave_rcpp_list_size`, lst)
+}
+
 rcpp_interleave_triangle <- function(obj, properties) {
     .Call(`_interleave_rcpp_interleave_triangle`, obj, properties)
 }

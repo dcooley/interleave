@@ -5,6 +5,8 @@
 
 #include <Rcpp.h>
 
+#include "geometries/utils/sexp/sexp.hpp"
+
 namespace interleave {
 namespace utils {
 
@@ -43,9 +45,33 @@ namespace utils {
     return 16;
   }
 
+  inline Rcpp::List list_rows(
+      const Rcpp::List& lst,
+      R_xlen_t& total_size
+  ) {
+    R_xlen_t n = lst.size();
+    Rcpp::List res( n ); // create a list to store the size corresponding to each list element
+    R_xlen_t i;
+    for( i = 0; i < n; i++ ) {
+      switch( TYPEOF( lst[i] ) ) {
+        case VECSXP: {
+          res[ i ] = list_rows( lst[i], total_size );
+          break;
+        }
+        default: {
+          SEXP obj = lst[i];
+          R_xlen_t n_rows = geometries::utils::sexp_n_row( obj );
+          res[i] = n_rows;
+          total_size += n_rows;
+        }
+      }
+    }
+    return res;
+  }
+
   inline Rcpp::List list_size(
       const Rcpp::List& lst,
-      int& total_size,
+      R_xlen_t& total_size,
       int& existing_type
   ) {
     R_xlen_t n = lst.size();
@@ -53,17 +79,17 @@ namespace utils {
     R_xlen_t i;
     for( i = 0; i < n; i++ ) {
       switch( TYPEOF( lst[i] ) ) {
-      case VECSXP: {
-        res[ i ] = list_size( lst[i], total_size, existing_type );
-        break;
-      }
-      default: {
-        int n_elements = Rf_length( lst[i] );
-        int new_type = TYPEOF( lst[i] );
-        existing_type = vector_type( new_type, existing_type );
-        res[i] = n_elements;
-        total_size += n_elements;
-      }
+        case VECSXP: {
+          res[ i ] = list_size( lst[i], total_size, existing_type );
+          break;
+        }
+        default: {
+          R_xlen_t n_elements = Rf_length( lst[i] );
+          int new_type = TYPEOF( lst[i] );
+          existing_type = vector_type( new_type, existing_type );
+          res[i] = n_elements;
+          total_size += n_elements;
+        }
       }
     }
     return res;
@@ -247,7 +273,7 @@ namespace utils {
 
   inline SEXP unlist_list( Rcpp::List& lst ) {
 
-    int total_size = 0;
+    R_xlen_t total_size = 0;
     int existing_type = 10;
     int position = 0;
     Rcpp::List lst_sizes = list_size( lst, total_size, existing_type );

@@ -6,7 +6,7 @@
 #include "interleave/earcut/earcut.hpp"
 #include "interleave/interleave.hpp"
 
-
+#include "interleave/utils/list.hpp"
 
 
 // [[Rcpp::export]]
@@ -37,13 +37,13 @@ SEXP rcpp_interleave( SEXP& obj ) {
 
 // [[Rcpp::export]]
 SEXP rcpp_interleave_point( SEXP& lst, int stride ) {
-  return interleave::primitives::interleave_point( lst, stride );
+  return interleave::primitives::interleave_primitive( lst, stride, interleave::primitives::INTERLEAVE_POINT );
 }
 
 
 // [[Rcpp::export]]
 SEXP rcpp_interleave_line( SEXP& lst, int stride ) {
-  return interleave::primitives::interleave_line( lst, stride );
+  return interleave::primitives::interleave_primitive( lst, stride, interleave::primitives::INTERLEAVE_LINE );
 }
 
 // for each element inside obj (for triangles)
@@ -51,6 +51,12 @@ SEXP rcpp_interleave_line( SEXP& lst, int stride ) {
 // OR do I say interleave_triangle() will ONLY work on POLYGONs (list(mat,mat)) objects?
 
 
+// [[Rcpp::export]]
+SEXP rcpp_list_size( Rcpp::List lst ) {
+  R_xlen_t total_size = 0;
+  Rcpp::List lst_sizes = interleave::utils::list_rows( lst, total_size );
+  return interleave::utils::unlist_list( lst_sizes );
+}
 
 
 /*
