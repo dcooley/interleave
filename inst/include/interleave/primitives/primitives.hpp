@@ -4,70 +4,15 @@
 #include "interleave/earcut/interleave.hpp"
 #include "interleave/interleave.hpp"
 
-#include "geometries/coordinates/dimensions.hpp"
+//#include "geometries/coordinates/dimensions.hpp"
+
+#include "geometries/utils/sexp/sexp.hpp"
 
 namespace interleave {
 namespace primitives {
 
   const int INTERLEAVE_POINT  = 1;
   const int INTERLEAVE_LINE   = 2;
-
-  // // converts any intpug sfc object into interleaved POINTs
-  // inline SEXP interleave_point( SEXP& obj, int stride ) {
-  //
-  //   if( !Rf_isNewList( obj ) ) {
-  //     Rcpp::stop("interleave - expecting a list");
-  //   }
-  //
-  //   Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
-  //
-  //   if( Rf_length( lst ) == 0 ) {
-  //     Rcpp::stop("interleave - empty list");
-  //   }
-  //
-  //
-  //   R_xlen_t total_coordinates = 0;
-  //   R_xlen_t n = Rf_length( lst );
-  //   R_xlen_t i;
-  //
-  //   Rcpp::List res_indices( n );
-  //   Rcpp::List res_list( n );
-  //
-  //   Rcpp::IntegerVector geometry_coordinates( n );
-  //
-  //   // TODO:
-  //   //
-  //   // IF list, loop over each object
-  //   // interleave
-  //   // set strides, n_coordinates etc.
-  //   // where the stride is the width of the matrix.
-  //   // assume the stride is the same for each matrix.
-  //   //
-  //
-  //   // Need to loop so we can interleave ANY object, and correctly form the
-  //   // n_coordinates & total_coordinate objects
-  //   //
-  //
-  //   Rcpp::NumericVector coords = interleave::interleave( lst );
-  //   R_xlen_t total_coordinates = coords.length() / stride;
-  //   Rcpp::IntegerVector start_indices( total_coordinates );
-  //   R_xlen_t i;
-  //
-  //   for( i = 0; i < total_coordinates; ++i ) {
-  //     start_indices[ i ] = i * stride;
-  //   }
-  //
-  //   //Rcpp::IntegerVector n_coordinates = Rcpp::rep( stride, total_coordinates );
-  //
-  //   return Rcpp::List::create(
-  //     Rcpp::_["coordinates"] = coords,
-  //     Rcpp::_["start_indices"] = start_indices,
-  //     Rcpp::_["total_coordinates"] = total_coordinates,
-  //     Rcpp::_["n_coordinates"] = geometry_coordinates,
-  //     Rcpp::_["stride"] = stride
-  //   );
-  // }
-
 
   // Converts any sfc input into either interleved POINTs or LINEs
   //
