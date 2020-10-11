@@ -2,6 +2,7 @@ Package: interleave
 Type: Package
 Title: Converts Tabular Data to Interleaved Vectors
 Version: 0.1.0
+Date: 2020-10-12
 Authors@R: c(
         person("David", "Coole", email = "mdsumner@gmail.com", role = c("aut", "cre")), 
         person("Mapbox", role = "cph", comment = "author of header library earcut.hpp")
@@ -19,7 +20,7 @@ Imports:
     geometries,
     Rcpp
 Suggests:
-    sfheaders (>= 0.3.0),
-    tinytest,
-    covr
+    covr,
+    sfheaders,
+    tinytest
 SystemRequirements: C++11
