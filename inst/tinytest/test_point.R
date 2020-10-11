@@ -4,33 +4,11 @@
 
 v <- 1:2
 expect_error( interleave:::rcpp_interleave_point(v, 2), "interleave - expecting a list")
-# expect_equal( v, res$coordinates )
-# expect_equal( res$start_indices, 0 )
-# expect_equal( res$stride, 2 )
-
-# # v <- 1:2
-# # res <- interleave:::rcpp_interleave_point(v, 3) ## testing incorrect stride
-# # expect_equal( v, res$coordinates )
-# # expect_equal( res$start_indices, 0 )
-# # expect_equal( res$stride, 2 )
-#
-# v <- 1:4
-# res <- interleave:::rcpp_interleave_point(v, 4)
-# expect_equal( v, res$coordinates )
-# expect_equal( res$start_indices, 0 )
-# expect_equal( res$stride, 4 )
 
 ## matrix (LINESTRING)
 m <- matrix(1:4, ncol = 2, byrow = T)
 expect_error( interleave:::rcpp_interleave_point(m, 2), "interleave - expecting a list")
-# # expect_equal( res$coordinates, 1:4 )
-# # expect_equal( res$start_indices, c(0:1) )  ##start_indices - the index in the coordinates vector where each geometry starts, divided by the stride.
-# # expect_equal( res$stride, 2 )
-#
-#
-# ## These functions only work on COLLECTIONS (e.g. sfc)
-# ## so they must be in a list
-#
+
 m <- matrix(1:4, ncol = 2, byrow = T)
 l <- list( m )
 res <- interleave:::rcpp_interleave_point(l, 2)
@@ -55,6 +33,30 @@ expect_equal( res$start_indices, c(0:3) )
 expect_equal( res$stride, 2 )
 
 expect_equal(
-  interleave:::rcpp_interleave_point( l, 2 )
-  , interleave:::rcpp_interleave_point( l2, 2 )
+  interleave:::rcpp_interleave_point( l, 2 )$coordinates
+  , interleave:::rcpp_interleave_point( l2, 2 )$coordinates
+)
+
+expect_equal(
+  interleave:::rcpp_interleave_point( l, 2 )$start_indices
+  , interleave:::rcpp_interleave_point( l2, 2 )$start_indices
+)
+
+expect_equal(
+  interleave:::rcpp_interleave_point( l, 2 )$total_coordinates
+  , interleave:::rcpp_interleave_point( l2, 2 )$total_coordinates
+)
+
+expect_equal(
+  interleave:::rcpp_interleave_point( l, 2 )$stride
+  , interleave:::rcpp_interleave_point( l2, 2 )$stride
+)
+
+## Geometry coordiantes are the coordinates of the original geometries
+## so they should be different
+expect_false(
+  all(
+    interleave:::rcpp_interleave_point( l, 2 )$geometry_coordinates ==
+      interleave:::rcpp_interleave_point( l2, 2 )$geometry_coordinates
+  )
 )

@@ -47,6 +47,11 @@ namespace primitives {
       geometry_coordinates[ i ] = dims( i, 1 ) - dims( i, 0 ) + 1;
     }
 
+    // TODO:
+    // n_coordinates is actually the difference between the start_indices
+    // so we don't need to calculate it twice?
+    // but we do need to know how many 'ring's there are
+    // so we can create the 'start_indices()' object
     Rcpp::List lst_sizes = interleave::utils::list_rows( lst, total_size );
     Rcpp::IntegerVector n_coordinates = interleave::utils::unlist_list( lst_sizes );
     R_xlen_t n = n_coordinates.length(); // the total number of coordinates
@@ -76,7 +81,7 @@ namespace primitives {
       Rcpp::_["start_indices"] = start_indices,
       Rcpp::_["geometry_coordinates"] = geometry_coordinates,
       Rcpp::_["total_coordinates"] = total_coordinates,
-      Rcpp::_["n_coordinates"] = n_coordinates,
+      //Rcpp::_["n_coordinates"] = n_coordinates,
       Rcpp::_["stride"] = stride
     );
   }
@@ -289,7 +294,6 @@ namespace primitives {
         SEXP p = interleave::utils::unlist_list( this_property );
 
         res_properties[ i ] = subset_vector( p, property_indexes );
-
       }
 
     // } else {

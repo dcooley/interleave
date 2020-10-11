@@ -16,7 +16,7 @@ expect_equal( res$coordinates, 1:16 )
 expect_equal( res$start_indices, 0 ) ## Only one line
 expect_equal( res$stride, 2 )
 expect_equal( sum( res$total_coordinates ), sum(sapply(l, nrow)) )
-expect_equal( res$n_coordinates, sapply(l, nrow) )
+expect_equal( res$geometry_coordinates, sapply(l, nrow) )
 
 ## Two linestrings (or a polygon)
 l <- list( m, m )
@@ -25,7 +25,7 @@ expect_equal( res$coordinates, c(1:16, 1:16) )
 expect_equal( res$start_indices, c(0,8) ) ## two lines
 expect_equal( res$stride, 2 )
 expect_equal( sum( res$total_coordinates ), sum(sapply(l, nrow)) )
-expect_equal( res$n_coordinates, sapply(l, nrow) )
+expect_equal( res$geometry_coordinates, sapply(l, nrow) )
 
 ## A mixture of a line and a polygon
 m1 <- matrix(1:4, ncol = 2, byrow = T)
@@ -35,7 +35,7 @@ res <- interleave:::rcpp_interleave_line( l, 2 )
 expect_equal( res$coordinates, c(1:4, 0,0,0,1,1,1,1,0,0,0))
 expect_equal( res$start_indices, c(0, 2) )
 expect_equal( sum( res$total_coordinates ), sum(sapply(l, nrow)) )
-expect_equal( res$n_coordinates, sapply(l, nrow) )
+expect_equal( res$geometry_coordinates, sapply(l, nrow) )
 
 
 ### Every possible type of sfg, sfc or any nested set of matrices (or not nested)
@@ -70,8 +70,44 @@ expect_equal( res$coordinates, coords )
 expect_true( length( res$start_indices ) == 7)
 expect_equal( res$start_indices, c(0, 1, 4, 7, 10, 13, 16 ))
 expect_true( res$total_coordinates == 19 )
-expect_equal( res$n_coordinates, c(1,3,3,3,3,3,3) )
 expect_equal( res$geometry_coordinates, c(1,3,6,9) )
+
+
+## Test all SF types return the same result
+df <- data.frame(
+  id1 = rep(1,10)
+  , id2 = c( rep(1, 5), rep(2, 5) )
+  , x = 1:10
+  , y = 10:1
+)
+
+sf_pt <- sfheaders::sf_point(
+  obj = df
+  , x = "x"
+  , y = "y"
+)
+
+sf_line <- sfheaders::sf_linestring(
+  obj = df
+  , x = "x"
+  , y = "y"
+  , linestring_id = "id1"
+)
+
+sf_polygon <- sfheaders::sf_polygon(
+  obj = df
+  , x = "x"
+  , y = "y"
+  , polygon_id = "id1"
+  , close = FALSE
+)
+
+res_pt <- interleave:::rcpp_interleave_line( sf_pt$geometry, 2 )
+res_ln <- interleave:::rcpp_interleave_line( sf_line$geometry, 2 )
+res_poly <- interleave:::rcpp_interleave_line( sf_polygon$geometry, 2 )
+
+expect_equal( res_pt$coordinates, res_ln$coordinates )
+expect_equal( res_ln$coordinates, res_poly$coordinates )
 
 
 ###
