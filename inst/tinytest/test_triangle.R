@@ -200,7 +200,6 @@ expect_equal(
   , c(p1,p2)[ res$input_index + 1 ]
 )
 
-
 ## - error-handling if the list elements aren't the correct size
 ## - non-closed polygons - does the property indexing work if the last (closed) point
 ## -- doesn't have a property

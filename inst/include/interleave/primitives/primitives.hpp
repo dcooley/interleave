@@ -300,7 +300,6 @@ namespace primitives {
     //   res_indices = Rcpp::List::create();
     }
 
-
     return Rcpp::List::create(
       Rcpp::_["coordinates"] = interleave::utils::unlist_list( res_coordinates ),
       //Rcpp::_["start_indices"] = interleave::utils::unlist_list( res_start_indices ),
