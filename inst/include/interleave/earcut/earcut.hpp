@@ -9,6 +9,8 @@
 namespace earcut {
 namespace util {
 
+// #nocov start
+
 template <std::size_t I, typename T> struct nth {
   inline static typename std::tuple_element<I, T>::type
   get(const T& t) { return std::get<I>(t); };
@@ -846,6 +848,8 @@ void Earcut<N>::removeNode(Node* p) {
   if (p->nextZ) p->nextZ->prevZ = p->prevZ;
 }
 }
+
+// #nocov end
 
 template <typename N = uint32_t, typename Polygon>
 SEXP earcut(const Polygon& poly) {
