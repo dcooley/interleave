@@ -107,25 +107,27 @@ expect_equal( mat[ res$input_index + 1, ], res_mat )
 m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
 m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
 
-poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), "XY", FALSE )
-res <- interleave:::rcpp_interleave_triangle( poly, list() )
-
-res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
-mat <- rbind(m1, m2)
-expect_equal( mat[ res$input_index + 1, ], res_mat )
-
-
-## Testing 3-polygons have the correct input_index returned
-m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
-m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
-m3 <- matrix(c(2,2,1,2,3,1,3,3,1,3,2,1,2,2,1), ncol = 3, byrow = T)
-
-poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2, m3), "XY", FALSE )
-res <- interleave:::rcpp_interleave_triangle( poly, list() )
-
-res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
-mat <- rbind(m1, m2, m3)
-expect_equal( mat[ res$input_index + 1, ], res_mat )
+## TODO: re-implement this test when 0.3.0 is on sfheaders
+# ## This rquires sfheaders v0.3.0
+# poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), "XY", FALSE )
+# res <- interleave:::rcpp_interleave_triangle( poly, list() )
+#
+# res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
+# mat <- rbind(m1, m2)
+# expect_equal( mat[ res$input_index + 1, ], res_mat )
+#
+#
+# ## Testing 3-polygons have the correct input_index returned
+# m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+# m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
+# m3 <- matrix(c(2,2,1,2,3,1,3,3,1,3,2,1,2,2,1), ncol = 3, byrow = T)
+#
+# poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2, m3), "XY", FALSE )
+# res <- interleave:::rcpp_interleave_triangle( poly, list() )
+#
+# res_mat <- matrix( res$coordinates, ncol = 3, byrow = T )
+# mat <- rbind(m1, m2, m3)
+# expect_equal( mat[ res$input_index + 1, ], res_mat )
 
 
 ## Testing properties are shuffled with indexes
