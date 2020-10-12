@@ -1,11 +1,13 @@
 
+
+## Test that interleaving triangles only accept list( list(matrix) ) inputs
 m <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 expect_error( interleave:::rcpp_interleave_triangle( m, list() ), "interleave - expecting a list" )
 
 ## single polygon
-## This won't work for trinagulating, because tringulating needs a collection,
+## This won't work for triangulating because it needs a collection,
 ## not a single (sfg) geometry.
-## for a single geometrh you would use earcut()
+## for a single geometry you would use earcut()
 m <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 l <- list( m )
 expect_silent( interleave:::rcpp_earcut( l ) )
@@ -52,7 +54,6 @@ dim <- geometries:::rcpp_geometry_dimensions( l )
 expect_true( nrow( dim$dimensions ) == 2 ) ## because there are two separate objects
 
 
-
 ## polygon with hole
 ## - single 'sfg' type should error
 m <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
@@ -60,7 +61,7 @@ h <- matrix(c(0.25,0.25,0.25,0.75,0.75,0.75,0.75,0.25,0.25,0.25), ncol = 2, byro
 l <- list( m, h )
 expect_error( interleave:::rcpp_interleave_triangle( l, list() ), "interleave - a list must only contain matrices" )
 ## TODO: ^^ possibly change this error by checking for the internal object type inside each
-## list element of the obj (in rcpp_interleave_trinagel)
+## list element of the obj (in rcpp_interleave_trinagle)
 ##
 ## Nest it inside an 'sfc'
 l <- list( list( m, h )  )
@@ -90,9 +91,7 @@ res2 <- interleave:::rcpp_interleave_triangle( sf$geometry, list() )
 
 expect_equal(res1, res2)
 
-## Test of the 'input_index' refers to the LINE, or the POLYGON.
-## i.e., if the Polygon has a hole, do the indices of teh hole start from 0, or
-## from polygon.nrow() ?
+## Test the input index refers to the row of the geometry, not the separate rings (outer or hole)
 m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
 m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
 mat <- rbind(m1, m2)
@@ -105,10 +104,10 @@ res_mat <- matrix( res$coordinates, ncol = 3, byrow = T)
 expect_equal( mat[ res$input_index + 1, ], res_mat )
 
 ## Testing 2-polygons have the correct input_index returned
-m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
-m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
-
 ## TODO: re-implement this test when 0.3.0 is on sfheaders
+# m1 <- matrix(c(0,0,1,0,1,2,1,1,3,1,0,4,0,0,1), ncol = 3, byrow = T)
+# m2 <- matrix(c(0.5,0.5,0.5,0.5,0.75,0.5,0.75,0.75,0.5,0.75,0.5,0.5,0.5,0.5,0.5), ncol = 3, byrow = T)
+#
 # ## This rquires sfheaders v0.3.0
 # poly <- sfheaders:::rcpp_sfg_polygons( list(m1, m2), "XY", FALSE )
 # res <- interleave:::rcpp_interleave_triangle( poly, list() )
@@ -201,12 +200,9 @@ expect_equal(
   , c(p1,p2)[ res$input_index + 1 ]
 )
 
-
-## - non-closed polygons - does the property indexing work if the last (closed) point
-## -- doesn't have a property
-
+## Testing if the properties have different lengths
 df <- data.frame(
-  id = c(1,1,1,1,1,2,2,2,2,2)
+  id = c(1,1,1,1,1, 2,2,2,2,2)
   , x = c(0,0,1,1,0, 2,2,3,3,2)
   , y = c(0,1,1,0,0, 2,3,3,2,2)
 )
@@ -219,21 +215,18 @@ sf$val <- list(p1,p2)
 
 expect_error( interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) ), "index error" )
 
+
 df <- data.frame(
   id = c(1,1,1,1,1, 2,2,2,2,2)
   , x = c(0,0,1,1,0, 2,2,3,3,2)
   , y = c(0,1,1,0,0, 2,3,3,2,2)
 )
 
-p1 <- letters[1:5]
-p2 <- letters[5:1]
-
 sf <- sfheaders::sf_polygon( df, polygon_id = "id")
 properties <- list(
   x = 1:4
   , y = 1:3
 )
-
 
 expect_error( interleave:::.test_interleave_triangle( sf$geometry, properties ), "index error" )
 
@@ -279,10 +272,10 @@ expect_true( res1$stride != res2$stride )
 expect_true( res1$stride == res2$stride + 1)
 
 
-## Testing interleave trianlge and primitive return teh same structure object
+## Testing interleave triangle and primitive return the same structure object
 
 df <- data.frame(
-  id = c(1,1,1,1,1,2,2,2,2,2)
+  id = c(1,1,1,1,1, 2,2,2,2,2)
   , x = c(0,0,1,1,0, 2,2,3,3,2)
   , y = c(0,1,1,0,0, 2,3,3,2,2)
 )
@@ -295,6 +288,20 @@ sf <- sfheaders::sf_polygon( df, polygon_id = "id")
 res_tri <- interleave:::rcpp_interleave_triangle( sf$geometry, list() )
 res_line <- interleave:::rcpp_interleave_line( sf$geometry, 2 )
 
-## Notes:
-## triangles have no need for 'start_indices'. It is always 0,2,5,8,...
+expect_true( "coordinates" %in% names( res_line ) )
+expect_true( "coordinates" %in% names( res_tri ) )
+expect_true( "start_indices" %in% names( res_line ) )
+expect_true( "start_indices" %in% names( res_tri ) )
+expect_true( "geometry_coordinates" %in% names( res_line ) )
+expect_true( "geometry_coordinates" %in% names( res_tri ) )
+expect_true( "stride" %in% names( res_line ) )
+expect_true( "stride" %in% names( res_tri ) )
 
+expect_true( "total_coordinates" %in% names( res_line ) )
+expect_true( !"total_coordinates" %in% names( res_tri ) )
+
+expect_true( "input_index" %in% names( res_tri ) )
+expect_true( "properties" %in% names( res_tri ) )
+
+expect_true( !"input_index" %in% names( res_line ) )
+expect_true( !"properties" %in% names( res_line ) )

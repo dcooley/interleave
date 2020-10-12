@@ -175,7 +175,7 @@ namespace utils {
       return fill_list( sv, line_positions );
     }
     default: {
-      Rcpp::stop("sfheaders - unknown column type");
+      Rcpp::stop("interleave - unknown column type");
     }
     }
     return Rcpp::List::create(); // #nocov
@@ -260,13 +260,13 @@ namespace utils {
       }
     }
 
-    Rcpp::stop("sfheaders - couldn't unlist this object");
+    Rcpp::stop("interleave - couldn't unlist this object");
     return lst; // #nocov - never reaches
 
   }
 
 } // utils
-} // sfheaders
+} // interleave
 
 #endif
 

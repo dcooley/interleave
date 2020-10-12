@@ -49,7 +49,7 @@ l <- list(
 expect_equal( interleave:::.test_unlist_list( l ), c(1:10, 1:20)  )
 
 l <- list(
-  1:10
+  c(TRUE, TRUE, FALSE)
   , matrix(1:16, ncol = 2)
   , list(
     letters[1:4]
