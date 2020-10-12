@@ -51,14 +51,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_list_size
-SEXP rcpp_list_size(Rcpp::List lst);
-RcppExport SEXP _interleave_rcpp_list_size(SEXP lstSEXP) {
+// rcpp_list_rows
+SEXP rcpp_list_rows(SEXP obj);
+RcppExport SEXP _interleave_rcpp_list_rows(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_list_rows(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_unlist_list
+SEXP rcpp_unlist_list(Rcpp::List lst);
+RcppExport SEXP _interleave_rcpp_unlist_list(SEXP lstSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type lst(lstSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_list_size(lst));
+    rcpp_result_gen = Rcpp::wrap(rcpp_unlist_list(lst));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -80,7 +91,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_interleave_rcpp_interleave", (DL_FUNC) &_interleave_rcpp_interleave, 1},
     {"_interleave_rcpp_interleave_point", (DL_FUNC) &_interleave_rcpp_interleave_point, 2},
     {"_interleave_rcpp_interleave_line", (DL_FUNC) &_interleave_rcpp_interleave_line, 2},
-    {"_interleave_rcpp_list_size", (DL_FUNC) &_interleave_rcpp_list_size, 1},
+    {"_interleave_rcpp_list_rows", (DL_FUNC) &_interleave_rcpp_list_rows, 1},
+    {"_interleave_rcpp_unlist_list", (DL_FUNC) &_interleave_rcpp_unlist_list, 1},
     {"_interleave_rcpp_interleave_triangle", (DL_FUNC) &_interleave_rcpp_interleave_triangle, 2},
     {NULL, NULL, 0}
 };

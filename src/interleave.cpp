@@ -52,11 +52,18 @@ SEXP rcpp_interleave_line( SEXP& lst, int stride ) {
 
 
 // [[Rcpp::export]]
-SEXP rcpp_list_size( Rcpp::List lst ) {
+SEXP rcpp_list_rows( SEXP obj ) {
+  R_xlen_t total_size = 0;
+  return interleave::utils::list_rows( obj, total_size );
+}
+
+// [[Rcpp::export]]
+SEXP rcpp_unlist_list( Rcpp::List lst ) {
   R_xlen_t total_size = 0;
   Rcpp::List lst_sizes = interleave::utils::list_rows( lst, total_size );
   return interleave::utils::unlist_list( lst_sizes );
 }
+
 
 
 /*

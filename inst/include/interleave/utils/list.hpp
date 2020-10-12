@@ -45,22 +45,57 @@ namespace utils {
     return 16;
   }
 
+
+  /*
+   * list rows
+   *
+   * Counts the number of rows in each list element
+   * The output list is the same size as the input, where all elements are the
+   * count of number of rows
+   */
   inline Rcpp::List list_rows(
-      const Rcpp::List& lst,
+      SEXP obj,
       R_xlen_t& total_size
   ) {
+
+    // Rcpp::Rcout << "TYPEOF( obj ) " << TYPEOF( obj ) << std::endl;
+    // Rcpp::Rcout << "inherits df: " << Rf_inherits( obj, "data.frame" ) << std::endl;
+    // Rcpp::Rcout << "isNewList: " << Rf_isNewList( obj ) << std::endl;
+
+    //R_xlen_t n;
+
+    if( Rf_inherits( obj, "data.frame" ) ) {
+      // don't loop / recurse...
+      Rcpp::stop("interleave - expecting a list input");
+    }
+
+    if( !Rf_isNewList( obj ) ) {
+      Rcpp::stop("interleave - expecting a list input");
+    }
+
+    Rcpp::List lst = Rcpp::as < Rcpp::List > ( obj );
+
     R_xlen_t n = lst.size();
     Rcpp::List res( n ); // create a list to store the size corresponding to each list element
     R_xlen_t i;
     for( i = 0; i < n; i++ ) {
-      switch( TYPEOF( lst[i] ) ) {
+      // Rcpp::Rcout << i << "/" << n << std::endl;
+      SEXP obj = lst[ i ];
+
+      // Rcpp::Rcout << "TYPEOF( obj ) " << TYPEOF( obj ) << std::endl;
+
+      switch( TYPEOF( obj ) ) {
         case VECSXP: {
-          res[ i ] = list_rows( lst[i], total_size );
-          break;
+          if( Rf_isNewList( obj ) && !Rf_inherits( obj, "data.frame" ) ) {
+            // Rcpp::Rcout << "new_list" << std::endl;
+            res[ i ] = list_rows( obj, total_size );
+            break; // break is inside the 'if', because a data.frame needs to fall through to 'default'
+          }
         }
         default: {
-          SEXP obj = lst[i];
-          R_xlen_t n_rows = geometries::utils::sexp_n_row( obj );
+          // Rcpp::Rcout << "default" << std::endl;
+          //SEXP obj = lst[i];
+          R_xlen_t n_rows = geometries::utils::sexp_n_row( obj );  // sexp_n_row is non-recursive
           res[i] = n_rows;
           total_size += n_rows;
         }
@@ -69,6 +104,12 @@ namespace utils {
     return res;
   }
 
+  /*
+   * list size
+   *
+   * Returns a list containing the length of each list element
+   *
+   */
   inline Rcpp::List list_size(
       const Rcpp::List& lst,
       R_xlen_t& total_size,
