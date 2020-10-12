@@ -220,9 +220,14 @@ namespace utils {
   /*
    * Unlist list
    *
-   *
+   * Converts a list where each element is a vector, into a single vector.
+   * Currently only supports lists of vectors (including nested list / vectors )
+   * (matrices get coerced to vectors)
    */
-  inline SEXP unlist_list( Rcpp::List& lst ) {
+  inline SEXP unlist_list( SEXP obj ) {
+
+    validate_list( obj );
+    Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
 
     R_xlen_t total_size = 0;
     int existing_type = 10;
@@ -244,6 +249,9 @@ namespace utils {
         Rcpp::Vector< REALSXP > v( total_size );
         unlist_list< REALSXP >( lst, lst_sizes, v, position );
         return v;
+      }
+      case VECSXP: {
+        Rcpp::stop("interleave - data.frames currently not supported");
       }
       default: {
         Rcpp::Vector< STRSXP > v( total_size );

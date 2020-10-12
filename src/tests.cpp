@@ -17,9 +17,7 @@ SEXP test_list_element_count( SEXP obj ) {
 }
 
 // [[Rcpp::export(.test_unlist_list)]]
-SEXP test_unlist_list( Rcpp::List lst ) {
-  R_xlen_t total_size = 0;
-  Rcpp::List lst_sizes = interleave::utils::list_rows( lst, total_size );
-  return interleave::utils::unlist_list( lst_sizes );
+SEXP test_unlist_list( SEXP obj ) {
+  return interleave::utils::unlist_list( obj );
 }
 

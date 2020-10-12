@@ -86,13 +86,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // test_unlist_list
-SEXP test_unlist_list(Rcpp::List lst);
-RcppExport SEXP _interleave_test_unlist_list(SEXP lstSEXP) {
+SEXP test_unlist_list(SEXP obj);
+RcppExport SEXP _interleave_test_unlist_list(SEXP objSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type lst(lstSEXP);
-    rcpp_result_gen = Rcpp::wrap(test_unlist_list(lst));
+    Rcpp::traits::input_parameter< SEXP >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_unlist_list(obj));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -29,7 +29,7 @@ rcpp_interleave_triangle <- function(obj, properties) {
     .Call(`_interleave_test_list_element_count`, obj)
 }
 
-.test_unlist_list <- function(lst) {
-    .Call(`_interleave_test_unlist_list`, lst)
+.test_unlist_list <- function(obj) {
+    .Call(`_interleave_test_unlist_list`, obj)
 }
 
