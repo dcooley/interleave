@@ -11,6 +11,7 @@ l <- list( m )
 expect_silent( interleave:::rcpp_earcut( l ) )
 expect_error( interleave:::rcpp_interleave_triangle( l, list() ), "interleave - a list must only contain matrices")
 
+
 ## single multipolygon is treated as two POLYGONs
 m1 <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 h <- matrix(c(0.25,0.25,0.25,0.75,0.75,0.75,0.75,0.25,0.25,0.25), ncol = 2, byrow = T)
@@ -200,11 +201,100 @@ expect_equal(
   , c(p1,p2)[ res$input_index + 1 ]
 )
 
-## - error-handling if the list elements aren't the correct size
+
 ## - non-closed polygons - does the property indexing work if the last (closed) point
 ## -- doesn't have a property
 
+df <- data.frame(
+  id = c(1,1,1,1,1,2,2,2,2,2)
+  , x = c(0,0,1,1,0, 2,2,3,3,2)
+  , y = c(0,1,1,0,0, 2,3,3,2,2)
+)
+
+p1 <- letters[1:4]
+p2 <- letters[4:1]
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "id")
+sf$val <- list(p1,p2)
+
+expect_error( interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) ), "index error" )
+
+df <- data.frame(
+  id = c(1,1,1,1,1, 2,2,2,2,2)
+  , x = c(0,0,1,1,0, 2,2,3,3,2)
+  , y = c(0,1,1,0,0, 2,3,3,2,2)
+)
+
+p1 <- letters[1:5]
+p2 <- letters[5:1]
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "id")
+properties <- list(
+  x = 1:4
+  , y = 1:3
+)
 
 
+expect_error( interleave:::.test_interleave_triangle( sf$geometry, properties ), "index error" )
 
+l <- list(
+  matrix(1:16, ncol = 2)
+  , matrix(1:16, ncol = 4)
+)
+
+## TODO - better handle of this error?
+expect_error( interleave:::.test_interleave_triangle( list( l ), list() ), "upper value must be greater than lower value" )
+
+## tringale with XYZ coords
+df <- data.frame(
+  x = c(0,0,1,1,0, 2,2,3,3,2)
+  , y = c(0,1,1,0,0, 2,3,3,2,2)
+  , z = 1:10
+)
+
+
+p1 <- letters[1:10]
+
+m1 <- as.matrix( df )
+m2 <- as.matrix( df[, c("x","y") ])
+
+res1 <- interleave:::rcpp_interleave_triangle( list( list( m1 ) ) , list( p1 ) )
+res2 <- interleave:::rcpp_interleave_triangle( list( list( m2 ) ) , list( p1 ) )
+
+expect_true( ( length( res1$coordinates ) / res1$stride) == ( length( res2$coordinates ) / res2$stride )  )
+
+## start indices shouldn't change
+expect_equal( res1$start_indices, res2$start_indices )
+
+## input indexes shouldn't change
+expect_equal( res1$input_index, res2$input_index )
+
+## properties shouldn't change
+expect_equal( res1$properties, res2$properties )
+
+## n-coordinates shouldn't change
+expect_equal( res1$geometry_coordinates, res2$geometry_coordinates )
+
+expect_true( res1$stride != res2$stride )
+expect_true( res1$stride == res2$stride + 1)
+
+
+## Testing interleave trianlge and primitive return teh same structure object
+
+df <- data.frame(
+  id = c(1,1,1,1,1,2,2,2,2,2)
+  , x = c(0,0,1,1,0, 2,2,3,3,2)
+  , y = c(0,1,1,0,0, 2,3,3,2,2)
+)
+
+p1 <- letters[1:5]
+p2 <- letters[5:1]
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "id")
+
+res_tri <- interleave:::rcpp_interleave_triangle( sf$geometry, list() )
+res_line <- interleave:::rcpp_interleave_line( sf$geometry, 2 )
+
+## Notes:
+## triangles have no need for 'start_indices'. It is always 0,2,5,8,...
 

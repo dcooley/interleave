@@ -63,6 +63,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_interleave
+SEXP test_interleave(SEXP obj);
+RcppExport SEXP _interleave_test_interleave(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_interleave(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // test_list_rows
 SEXP test_list_rows(SEXP obj);
 RcppExport SEXP _interleave_test_list_rows(SEXP objSEXP) {
@@ -96,6 +107,43 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_interleave_primitive
+SEXP test_interleave_primitive(SEXP obj, int stride, int primitive_type);
+RcppExport SEXP _interleave_test_interleave_primitive(SEXP objSEXP, SEXP strideSEXP, SEXP primitive_typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< int >::type stride(strideSEXP);
+    Rcpp::traits::input_parameter< int >::type primitive_type(primitive_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_interleave_primitive(obj, stride, primitive_type));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_interleave_triangle
+SEXP test_interleave_triangle(SEXP obj, Rcpp::List properties);
+RcppExport SEXP _interleave_test_interleave_triangle(SEXP objSEXP, SEXP propertiesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type obj(objSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type properties(propertiesSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_interleave_triangle(obj, properties));
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_subset_vector
+SEXP test_subset_vector(SEXP v, Rcpp::IntegerVector indices);
+RcppExport SEXP _interleave_test_subset_vector(SEXP vSEXP, SEXP indicesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type v(vSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type indices(indicesSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_subset_vector(v, indices));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_interleave_rcpp_earcut", (DL_FUNC) &_interleave_rcpp_earcut, 1},
@@ -103,9 +151,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_interleave_rcpp_interleave_point", (DL_FUNC) &_interleave_rcpp_interleave_point, 2},
     {"_interleave_rcpp_interleave_line", (DL_FUNC) &_interleave_rcpp_interleave_line, 2},
     {"_interleave_rcpp_interleave_triangle", (DL_FUNC) &_interleave_rcpp_interleave_triangle, 2},
+    {"_interleave_test_interleave", (DL_FUNC) &_interleave_test_interleave, 1},
     {"_interleave_test_list_rows", (DL_FUNC) &_interleave_test_list_rows, 1},
     {"_interleave_test_list_element_count", (DL_FUNC) &_interleave_test_list_element_count, 1},
     {"_interleave_test_unlist_list", (DL_FUNC) &_interleave_test_unlist_list, 1},
+    {"_interleave_test_interleave_primitive", (DL_FUNC) &_interleave_test_interleave_primitive, 3},
+    {"_interleave_test_interleave_triangle", (DL_FUNC) &_interleave_test_interleave_triangle, 2},
+    {"_interleave_test_subset_vector", (DL_FUNC) &_interleave_test_subset_vector, 2},
     {NULL, NULL, 0}
 };
 

@@ -21,6 +21,10 @@ rcpp_interleave_triangle <- function(obj, properties) {
     .Call(`_interleave_rcpp_interleave_triangle`, obj, properties)
 }
 
+.test_interleave <- function(obj) {
+    .Call(`_interleave_test_interleave`, obj)
+}
+
 .test_list_rows <- function(obj) {
     .Call(`_interleave_test_list_rows`, obj)
 }
@@ -31,5 +35,17 @@ rcpp_interleave_triangle <- function(obj, properties) {
 
 .test_unlist_list <- function(obj) {
     .Call(`_interleave_test_unlist_list`, obj)
+}
+
+.test_interleave_primitive <- function(obj, stride, primitive_type) {
+    .Call(`_interleave_test_interleave_primitive`, obj, stride, primitive_type)
+}
+
+.test_interleave_triangle <- function(obj, properties) {
+    .Call(`_interleave_test_interleave_triangle`, obj, properties)
+}
+
+.test_subset_vector <- function(v, indices) {
+    .Call(`_interleave_test_subset_vector`, v, indices)
 }
 

@@ -6,6 +6,7 @@ expect_error( interleave:::rcpp_interleave_line( v, 2 ), "interleave - expecting
 m <- matrix(1:4, ncol = 2)
 expect_error( interleave:::rcpp_interleave_line( m, 2 ), "interleave - expecting a list")
 
+expect_error( interleave:::rcpp_interleave_line( list(), 2 ), "interleave - empty list")
 
 ## interleave_line() should only accept LIST inputs
 ## matrix (e.g. LINESTRING)

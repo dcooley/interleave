@@ -17,3 +17,12 @@ expect_equal(c(1:20,20:1) , res )
 l <- list( m1, list( list( m2 ) ) )
 res <- interleave( l )
 expect_equal(c(1:20,20:1) , res )
+
+## Only numeric values can be interleaved
+err <- "interleave - can not interleave this type of object"
+expect_error( interleave:::.test_interleave( T ), err )
+expect_error( interleave:::.test_interleave( raw() ), err )
+expect_error( interleave:::.test_interleave( complex() ), err )
+
+expect_equal( interleave:::.test_interleave( 1:4 ), 1:4 )
+expect_equal( interleave:::.test_interleave( list(1:4) ), 1:4 )

@@ -1,7 +1,13 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-#include "interleave/utils/list.hpp"
+#include "interleave/interleave.hpp"
+#include "interleave/primitives/primitives.hpp"
+
+// [[Rcpp::export(.test_interleave)]]
+SEXP test_interleave( SEXP obj ) {
+  return interleave::interleave( obj );
+}
 
 // [[Rcpp::export(.test_list_rows)]]
 SEXP test_list_rows( SEXP obj ) {
@@ -21,3 +27,17 @@ SEXP test_unlist_list( SEXP obj ) {
   return interleave::utils::unlist_list( obj );
 }
 
+// [[Rcpp::export(.test_interleave_primitive)]]
+SEXP test_interleave_primitive( SEXP obj, int stride, int primitive_type ) {
+  return interleave::primitives::interleave_primitive( obj, stride, primitive_type );
+}
+
+// [[Rcpp::export(.test_interleave_triangle)]]
+SEXP test_interleave_triangle( SEXP obj, Rcpp::List properties ) {
+  return interleave::primitives::interleave_triangle( obj, properties );
+}
+
+// [[Rcpp::export(.test_subset_vector)]]
+SEXP test_subset_vector( SEXP v, Rcpp::IntegerVector indices ) {
+  return interleave::primitives::subset_vector( v, indices );
+}
