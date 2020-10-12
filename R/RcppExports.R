@@ -17,15 +17,19 @@ rcpp_interleave_line <- function(lst, stride) {
     .Call(`_interleave_rcpp_interleave_line`, lst, stride)
 }
 
-rcpp_list_rows <- function(obj) {
-    .Call(`_interleave_rcpp_list_rows`, obj)
-}
-
-rcpp_unlist_list <- function(lst) {
-    .Call(`_interleave_rcpp_unlist_list`, lst)
-}
-
 rcpp_interleave_triangle <- function(obj, properties) {
     .Call(`_interleave_rcpp_interleave_triangle`, obj, properties)
+}
+
+.test_list_rows <- function(obj) {
+    .Call(`_interleave_test_list_rows`, obj)
+}
+
+.test_list_element_count <- function(obj) {
+    .Call(`_interleave_test_list_element_count`, obj)
+}
+
+.test_unlist_list <- function(lst) {
+    .Call(`_interleave_test_unlist_list`, lst)
 }
 

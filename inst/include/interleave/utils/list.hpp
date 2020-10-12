@@ -10,6 +10,16 @@
 namespace interleave {
 namespace utils {
 
+  inline void validate_list( SEXP& obj ) {
+    if( Rf_inherits( obj, "data.frame" ) ) {
+      Rcpp::stop("interleave - expecting a list input");
+    }
+
+    if( !Rf_isNewList( obj ) ) {
+      Rcpp::stop("interleave - expecting a list input");
+    }
+  }
+
   inline int vector_type( int new_type, int existing_type ) {
 
     // can't change from STRSXP
@@ -58,45 +68,24 @@ namespace utils {
       R_xlen_t& total_size
   ) {
 
-    // Rcpp::Rcout << "TYPEOF( obj ) " << TYPEOF( obj ) << std::endl;
-    // Rcpp::Rcout << "inherits df: " << Rf_inherits( obj, "data.frame" ) << std::endl;
-    // Rcpp::Rcout << "isNewList: " << Rf_isNewList( obj ) << std::endl;
-
-    //R_xlen_t n;
-
-    if( Rf_inherits( obj, "data.frame" ) ) {
-      // don't loop / recurse...
-      Rcpp::stop("interleave - expecting a list input");
-    }
-
-    if( !Rf_isNewList( obj ) ) {
-      Rcpp::stop("interleave - expecting a list input");
-    }
-
+    validate_list( obj );
     Rcpp::List lst = Rcpp::as < Rcpp::List > ( obj );
 
     R_xlen_t n = lst.size();
     Rcpp::List res( n ); // create a list to store the size corresponding to each list element
     R_xlen_t i;
     for( i = 0; i < n; i++ ) {
-      // Rcpp::Rcout << i << "/" << n << std::endl;
-      SEXP obj = lst[ i ];
-
-      // Rcpp::Rcout << "TYPEOF( obj ) " << TYPEOF( obj ) << std::endl;
-
-      switch( TYPEOF( obj ) ) {
+      SEXP inner_obj = lst[ i ];
+      switch( TYPEOF( inner_obj ) ) {
         case VECSXP: {
-          if( Rf_isNewList( obj ) && !Rf_inherits( obj, "data.frame" ) ) {
-            // Rcpp::Rcout << "new_list" << std::endl;
-            res[ i ] = list_rows( obj, total_size );
+          if( Rf_isNewList( inner_obj ) && !Rf_inherits( inner_obj, "data.frame" ) ) {
+            res[ i ] = list_rows( inner_obj, total_size );
             break; // break is inside the 'if', because a data.frame needs to fall through to 'default'
           }
         }
         default: {
-          // Rcpp::Rcout << "default" << std::endl;
-          //SEXP obj = lst[i];
-          R_xlen_t n_rows = geometries::utils::sexp_n_row( obj );  // sexp_n_row is non-recursive
-          res[i] = n_rows;
+          R_xlen_t n_rows = geometries::utils::sexp_n_row( inner_obj );  // sexp_n_row is non-recursive
+          res[ i ] = n_rows;
           total_size += n_rows;
         }
       }
@@ -105,30 +94,37 @@ namespace utils {
   }
 
   /*
-   * list size
+   * list element count
    *
-   * Returns a list containing the length of each list element
+   * Returns a list containing the number of values inside each list element
    *
    */
-  inline Rcpp::List list_size(
-      const Rcpp::List& lst,
+  inline Rcpp::List list_element_count(
+      SEXP obj,
       R_xlen_t& total_size,
       int& existing_type
   ) {
+
+    validate_list( obj );
+    Rcpp::List lst = Rcpp::as < Rcpp::List > ( obj );
+
     R_xlen_t n = lst.size();
     Rcpp::List res( n ); // create a list to store the size corresponding to each list element
     R_xlen_t i;
     for( i = 0; i < n; i++ ) {
-      switch( TYPEOF( lst[i] ) ) {
+      SEXP inner_obj = lst[ i ];
+      switch( TYPEOF( inner_obj ) ) {
         case VECSXP: {
-          res[ i ] = list_size( lst[i], total_size, existing_type );
-          break;
+          if( Rf_isNewList( inner_obj ) && !Rf_inherits( inner_obj, "data.frame" ) ) {
+            res[ i ] = list_element_count( inner_obj, total_size, existing_type );
+            break;
+          }
         }
         default: {
-          R_xlen_t n_elements = Rf_length( lst[i] );
-          int new_type = TYPEOF( lst[i] );
+          R_xlen_t n_elements = geometries::utils::sexp_n_row( inner_obj ) * geometries::utils::sexp_n_col( inner_obj );
+          int new_type = TYPEOF( inner_obj );
           existing_type = vector_type( new_type, existing_type );
-          res[i] = n_elements;
+          res[ i ] = n_elements;
           total_size += n_elements;
         }
       }
@@ -186,78 +182,17 @@ namespace utils {
   }
 
 
-  /*
-   * @param lst - the original input list
-   * @param lst_sizes - the dimensions of the list
-   * @param values - vector of values to be unlist
-   */
-  // inline void unlist_list(
-  //     const Rcpp::List& lst,
-  //     const Rcpp::List& lst_sizes,
-  //     Rcpp::LogicalVector& values,
-  //     int& list_position
-  // ) {
-  //   // - iterate through original list
-  //   // - extract each element and insert into 'values'
-  //   R_xlen_t n = lst.size();
-  //   Rcpp::List res( n );
-  //   R_xlen_t i;
-  //   for( i = 0; i < n; ++i ) {
-  //     switch( TYPEOF( lst[ i ] ) ) {
-  //     case VECSXP: {
-  //       unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
-  //       break;
-  //     }
-  //     default: {
-  //       Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
-  //       int end_position = list_position + n_elements[0] - 1;
-  //       Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
-  //       values[ elements ] = Rcpp::as< Rcpp::LogicalVector >( lst[ i ] );
-  //
-  //       list_position = end_position + 1;
-  //       break;
-  //     }
-  //     }
-  //   }
-  // }
-  //
-  // inline void unlist_list(
-  //     const Rcpp::List& lst,
-  //     const Rcpp::List& lst_sizes,
-  //     Rcpp::IntegerVector& values,
-  //     int& list_position
-  // ) {
-  //   // - iterate through original list
-  //   // - extract each element and insert into 'values'
-  //   R_xlen_t n = lst.size();
-  //   Rcpp::List res( n );
-  //   R_xlen_t i;
-  //   for( i = 0; i < n; ++i ) {
-  //     switch( TYPEOF( lst[ i ] ) ) {
-  //     case VECSXP: {
-  //       unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
-  //       break;
-  //     }
-  //     default: {
-  //       Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
-  //       int end_position = list_position + n_elements[0] - 1;
-  //       Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
-  //       values[ elements ] = Rcpp::as< Rcpp::IntegerVector >( lst[ i ] );
-  //
-  //       list_position = end_position + 1;
-  //       break;
-  //     }
-  //     }
-  //   }
-  // }
-
   template< int RTYPE >
   inline void unlist_list(
-      const Rcpp::List& lst,
+      SEXP obj,
       const Rcpp::List& lst_sizes,
       Rcpp::Vector< RTYPE >& values,
       int& list_position
   ) {
+
+    validate_list( obj );
+    Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
+
     // - iterate through original list
     // - extract each element and insert into 'values'
     R_xlen_t n = lst.size();
@@ -282,42 +217,17 @@ namespace utils {
     }
   }
 
-  // inline void unlist_list(
-  //     const Rcpp::List& lst,
-  //     const Rcpp::List& lst_sizes,
-  //     Rcpp::StringVector& values,
-  //     int& list_position
-  // ) {
-  //   // - iterate through original list
-  //   // - extract each element and insert into 'values'
-  //   R_xlen_t n = lst.size();
-  //   Rcpp::List res( n );
-  //   R_xlen_t i;
-  //   for( i = 0; i < n; i++ ) {
-  //     switch( TYPEOF( lst[i] ) ) {
-  //     case VECSXP: {
-  //       unlist_list( lst[ i ], lst_sizes[ i ], values, list_position );
-  //       break;
-  //     }
-  //     default: {
-  //       Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
-  //       int end_position = list_position + n_elements[0] - 1;
-  //       Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
-  //       values[ elements ] = Rcpp::as< Rcpp::StringVector >( lst[ i ] );
-  //
-  //       list_position = end_position + 1;
-  //       break;
-  //     }
-  //     }
-  //   }
-  // }
-
+  /*
+   * Unlist list
+   *
+   *
+   */
   inline SEXP unlist_list( Rcpp::List& lst ) {
 
     R_xlen_t total_size = 0;
     int existing_type = 10;
     int position = 0;
-    Rcpp::List lst_sizes = list_size( lst, total_size, existing_type );
+    Rcpp::List lst_sizes = list_element_count( lst, total_size, existing_type );
 
     switch( existing_type ) {
       case LGLSXP: {
