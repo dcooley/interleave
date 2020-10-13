@@ -28,8 +28,8 @@ SEXP test_unlist_list( SEXP obj ) {
 }
 
 // [[Rcpp::export(.test_interleave_primitive)]]
-SEXP test_interleave_primitive( SEXP obj, int stride, int primitive_type ) {
-  return interleave::primitives::interleave_primitive( obj, stride, primitive_type );
+SEXP test_interleave_primitive( SEXP obj, int primitive_type ) {
+  return interleave::primitives::interleave_primitive( obj, primitive_type );
 }
 
 // [[Rcpp::export(.test_interleave_triangle)]]

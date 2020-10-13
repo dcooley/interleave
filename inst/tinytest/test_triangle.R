@@ -286,7 +286,7 @@ p2 <- letters[5:1]
 sf <- sfheaders::sf_polygon( df, polygon_id = "id")
 
 res_tri <- interleave:::rcpp_interleave_triangle( sf$geometry, list() )
-res_line <- interleave:::rcpp_interleave_line( sf$geometry, 2 )
+res_line <- interleave:::rcpp_interleave_line( sf$geometry )
 
 expect_true( "coordinates" %in% names( res_line ) )
 expect_true( "coordinates" %in% names( res_tri ) )

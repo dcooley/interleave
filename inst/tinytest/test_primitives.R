@@ -1,9 +1,9 @@
 
 
-expect_error( interleave:::.test_interleave_primitive( list(), 2, 1 ), "interleave - empty list" )
-expect_error( interleave:::.test_interleave_primitive( 1:4, 2, 2), "interleave - expecting a list" )
+expect_error( interleave:::.test_interleave_primitive( list(), 1 ), "interleave - empty list" )
+expect_error( interleave:::.test_interleave_primitive( 1:4, 2), "interleave - expecting a list" )
 
-expect_error( interleave:::.test_interleave_primitive( list(1:4), stride = 2, 3 ), "interleave - unknown primitive type" )
+expect_error( interleave:::.test_interleave_primitive( list(1:4), 3 ), "interleave - unknown primitive type" )
 
 
 expect_error( interleave:::.test_subset_vector( 1:4, -1 ), "index error" )

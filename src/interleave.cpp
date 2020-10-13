@@ -18,14 +18,14 @@ SEXP rcpp_interleave( SEXP& obj ) {
 }
 
 // [[Rcpp::export]]
-SEXP rcpp_interleave_point( SEXP& lst, int stride ) {
-  return interleave::primitives::interleave_primitive( lst, stride, interleave::primitives::INTERLEAVE_POINT );
+SEXP rcpp_interleave_point( SEXP& lst ) {
+  return interleave::primitives::interleave_primitive( lst, interleave::primitives::INTERLEAVE_POINT );
 }
 
 
 // [[Rcpp::export]]
-SEXP rcpp_interleave_line( SEXP& lst, int stride ) {
-  return interleave::primitives::interleave_primitive( lst, stride, interleave::primitives::INTERLEAVE_LINE );
+SEXP rcpp_interleave_line( SEXP& lst ) {
+  return interleave::primitives::interleave_primitive( lst, interleave::primitives::INTERLEAVE_LINE );
 }
 
 

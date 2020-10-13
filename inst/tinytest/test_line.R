@@ -1,18 +1,18 @@
 
 v <- 1:4
-expect_error( interleave:::rcpp_interleave_line( v, 2 ), "interleave - expecting a list")
+expect_error( interleave:::rcpp_interleave_line( v ), "interleave - expecting a list")
 
 
 m <- matrix(1:4, ncol = 2)
-expect_error( interleave:::rcpp_interleave_line( m, 2 ), "interleave - expecting a list")
+expect_error( interleave:::rcpp_interleave_line( m ), "interleave - expecting a list")
 
-expect_error( interleave:::rcpp_interleave_line( list(), 2 ), "interleave - empty list")
+expect_error( interleave:::rcpp_interleave_line( list() ), "interleave - empty list")
 
 ## interleave_line() should only accept LIST inputs
 ## matrix (e.g. LINESTRING)
 m <- matrix(1:16, ncol = 2, byrow = T)
 l <- list( m )
-res <- interleave:::rcpp_interleave_line( l, 2 )
+res <- interleave:::rcpp_interleave_line( l )
 expect_equal( res$coordinates, 1:16 )
 expect_equal( res$start_indices, 0 ) ## Only one line
 expect_equal( res$stride, 2 )
@@ -21,7 +21,7 @@ expect_equal( res$geometry_coordinates, sapply(l, nrow) )
 
 ## Two linestrings (or a polygon)
 l <- list( m, m )
-res <- interleave:::rcpp_interleave_line( l, 2 )
+res <- interleave:::rcpp_interleave_line( l )
 expect_equal( res$coordinates, c(1:16, 1:16) )
 expect_equal( res$start_indices, c(0,8) ) ## two lines
 expect_equal( res$stride, 2 )
@@ -32,7 +32,7 @@ expect_equal( res$geometry_coordinates, sapply(l, nrow) )
 m1 <- matrix(1:4, ncol = 2, byrow = T)
 m2 <- matrix(c(0,0,0,1,1,1,1,0,0,0), ncol = 2, byrow = T)
 l <- list( m1, m2 )
-res <- interleave:::rcpp_interleave_line( l, 2 )
+res <- interleave:::rcpp_interleave_line( l )
 expect_equal( res$coordinates, c(1:4, 0,0,0,1,1,1,1,0,0,0))
 expect_equal( res$start_indices, c(0, 2) )
 expect_equal( sum( res$total_coordinates ), sum(sapply(l, nrow)) )
@@ -53,7 +53,7 @@ l <- list(
   , list( list( m1 ), list( m2, m3 ) ) ## MULTIPOLYGON
 )
 
-res <- interleave:::rcpp_interleave_line( l, 2 )
+res <- interleave:::rcpp_interleave_line( l )
 
 coords <- c(
   1:2
@@ -103,9 +103,9 @@ sf_polygon <- sfheaders::sf_polygon(
   , close = FALSE
 )
 
-res_pt <- interleave:::rcpp_interleave_line( sf_pt$geometry, 2 )
-res_ln <- interleave:::rcpp_interleave_line( sf_line$geometry, 2 )
-res_poly <- interleave:::rcpp_interleave_line( sf_polygon$geometry, 2 )
+res_pt <- interleave:::rcpp_interleave_line( sf_pt$geometry )
+res_ln <- interleave:::rcpp_interleave_line( sf_line$geometry )
+res_poly <- interleave:::rcpp_interleave_line( sf_polygon$geometry )
 
 expect_equal( res_pt$coordinates, res_ln$coordinates )
 expect_equal( res_ln$coordinates, res_poly$coordinates )

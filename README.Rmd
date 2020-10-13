@@ -1,11 +1,11 @@
 ---
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 [![R build status](https://github.com/dcooley/interleave/workflows/R-CMD-check/badge.svg)](https://github.com/dcooley/interleave/actions)
 [![Codecov test coverage](https://codecov.io/gh/dcooley/interleave/branch/master/graph/badge.svg)](https://codecov.io/gh/dcooley/interleave?branch=master)
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -26,7 +26,11 @@ knitr::include_graphics("./man/figures/interleaving.gif")
 
 # interleave
 
+As the amazing gif shows, **interleaving** in this context means converting a matrix into a vector, filled in a row-wise manner.
+
 I'm building this library to be the workhorse for converting matrices (and lists of matrices) into single, interleaved vectors, ready for WebGL applications.
+
+Here are some simple examples
 
 ```{r}
 
@@ -41,163 +45,6 @@ interleave( mat2 )
 lst <- list( mat1, mat2 )
 
 interleave( lst )
-
-```
-
-
-## Ear-cutting / geometries / polygon structures
-
-Isn't this what `decido` is for?
-
-Yes and no. I'm using this repo to experiment. Dunno if it's going to stay here or not. I've deviated away from `mapbox::earcut` slightly by returning interleaved coordinates directly (rather than indicies), and I accept any dimension (XY(Z(M(...n))), and so I can't make it nicely fit in `decido` (yet).
-
-
-```{r}
-x <- c(0, 0, 0.75, 1, 0.5, 0.8, 0.69)
-y <- c(0, 1, 1, 0.8, 0.7, 0.6, 0)
-mat <- cbind(x, y)
-lst <- list( mat )
-interleave:::rcpp_earcut( lst )
-```
-
-With a hole
-
-```{r}
-
-x1 <- c(0, 0, 0.75, 1, 0.5, 0.8, 0.69)
-x2 <- c(0.2, 0.5, 0.5, 0.3, 0.2)
-y1 <- c(0, 1, 1, 0.8, 0.7, 0.6, 0)
-y2 <- c(0.2, 0.2, 0.4, 0.6, 0.4)
-
-mat1 <- cbind(x1, y1)
-mat2 <- cbind(x2, y2)
-
-lst <- list( mat1, mat2 )
-
-interleave:::rcpp_earcut( lst )
-
-```
-
-
-**But Dave, why not just transpose a matrix and remove the dimension?**
-
-Yeah, of course you can do that if you want. But my goal is to make these functions callable through C++ directly, by other packages. And it benchmarks pretty well.
-
-```{r}
-
-mat <- matrix(rnorm(5e6), ncol = 5, byrow = T)
-
-microbenchmark::microbenchmark(
-  leave = { interleave( mat ) },
-  baset = {
-    mat2 <- t( mat )
-    dim( mat2 ) <- NULL
-    },
-  times = 25
-)
-
-
-
-mat <- matrix(1e6, ncol = 2)
-lst <- list( mat, mat, mat, mat, mat )
-
-microbenchmark::microbenchmark(
-  leave = { interleave( lst ) },
-  baset = {
-    unlist(
-      lapply(lst, function(x) {
-        y <- t(x)
-        dim( y ) <- NULL
-        y
-      })
-    )
-  },
-  times = 25
-)
-
-```
-
-## Interleaved object
-
-**For v0.1 this object is only created in internal functions**
-
-- A **coordinate** is a set of values describing a position, typically denoted by `(x, y)`, although any number of values are allowed.
-- The number of values in a **coordinate** is the **stride**. Often referred to as the _dimension_ (XY)
-
-Within the interleaved object
-
-- **coordinates** - all the coordinates as a single, interleaved vector
-- **stride** - the number of values in each coordinate.
-- **start_indices** - the index in the **coordinates** vector where each geometry starts, divided by the stride.
-
-<!-- - **n_coordinates** - the number of coordinates in each geometry -->
-
-Wait, what? Can you explain the **start_indices** again? 
-
-Ok, the **start_indices** is **not** the index in the interleaved vector where each coordinate starts. 
-
-If you imagine two lines represented by two matrices, one with seven rows and the other with 4.
-
-```{r}
-x1 <- c(1:7)
-x2 <- c(8:11)
-y1 <- c(1:7)
-y2 <- c(8:11)
-
-mat1 <- cbind(x1, y1)
-mat2 <- cbind(x2, y2)
-```
-
-Then the interleaved object of these lines is
-
-```{r}
-( lst <- list( mat1, mat2 ) )
-
-interleave:::rcpp_interleave_line( lst, 2 )
-```
-
-The first geometry obviously starts at index 0. The second geometry starts at index 7 multiplied by the stride; 7 x 2 = 14. So you can see in the **coordinates** object the (8, 8) pair of coordinates starts at index 14 (using 0-based indexing)
-
-
-Finally, you can get the total number of coordinates for all the geometries by `length( coordinates ) / stride`
-
-## Primitive Types
-
-**For v0.1 this functions are only accessible through internal functions**
-
-- `interleave:::rcpp_interleave_point()`
-- `interleave:::rcpp_interleave_line()`
-- `interleave:::rcpp_interleave_triangle()`
-
-
-### Interleave Point
-
-
-```{r}
-
-## Assume a 'linestring' object (i.e., a matrix)
-( lst <- list( matrix(1:10, ncol = 2) ) )
-
-interleave:::rcpp_interleave_point( lst, 2 )
-```
-
-
-## Interleave Triangle
-
-```{r}
-
-x1 <- c(0, 0, 0.75, 1, 0.5, 0.8, 0.69)
-x2 <- c(0.2, 0.5, 0.5, 0.3, 0.2)
-y1 <- c(0, 1, 1, 0.8, 0.7, 0.6, 0)
-y2 <- c(0.2, 0.2, 0.4, 0.6, 0.4)
-
-mat1 <- cbind(x1, y1)
-mat2 <- cbind(x2, y2)
-
-## only works on a 'collection'
-lst <- list( list( mat1, mat2 ) )
-
-interleave:::rcpp_interleave_triangle( lst )
 
 ```
 

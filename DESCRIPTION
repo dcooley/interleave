@@ -4,11 +4,11 @@ Title: Converts Tabular Data to Interleaved Vectors
 Version: 0.1.0
 Date: 2020-10-12
 Authors@R: c(
-        person("David", "Coole", email = "mdsumner@gmail.com", role = c("aut", "cre")), 
+        person("David", "Coole", email = "david.cooley.au@gmail.com", role = c("aut", "cre")), 
         person("Mapbox", role = "cph", comment = "author of header library earcut.hpp")
         )
-Description: Interleaves matrices and lists of matrices by collapsing all values into
-    a single vector.
+Description: Converts matrices and lists of matrices into a single vector by interleaving 
+    the values in each column.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

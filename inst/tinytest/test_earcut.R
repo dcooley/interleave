@@ -7,7 +7,7 @@ ec <- interleave:::rcpp_earcut( l )
 ## expected:
 t1 <- matrix(c(0,1,0,0,1,0), ncol = 2, byrow = T)
 t2 <- matrix(c(1,0,1,1,0,1), ncol = 2, byrow = T)
-tr <- interleave:::rcpp_interleave_line( list(t1, t2), 2 )
+tr <- interleave:::rcpp_interleave_line( list(t1, t2) )
 expect_equal( ec$coordinates, tr$coordinates )
 expect_equal( tr$start_indices, c(0,3))
 
