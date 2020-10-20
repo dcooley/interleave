@@ -26,3 +26,11 @@ expect_error( interleave:::.test_interleave( complex() ), err )
 
 expect_equal( interleave:::.test_interleave( 1:4 ), 1:4 )
 expect_equal( interleave:::.test_interleave( list(1:4) ), 1:4 )
+
+## Test that data.frames are not supported
+df <- data.frame(
+  x = 1:5
+  , y = 5:1
+)
+expect_error( interleave( df ), "interleave - data.frames are currently not supported")
+

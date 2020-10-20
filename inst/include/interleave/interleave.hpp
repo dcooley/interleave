@@ -41,6 +41,9 @@ inline SEXP interleave( SEXP& obj ) {
       }
     }
     case VECSXP: {
+      if( Rf_inherits( obj, "data.frame") ) {
+        Rcpp::stop("interleave - data.frames are currently not supported");
+      }
       if( Rf_isNewList( obj ) ) {
         Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
         R_xlen_t n = lst.size();

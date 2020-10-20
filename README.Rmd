@@ -48,5 +48,3 @@ interleave( lst )
 
 ```
 
-
-

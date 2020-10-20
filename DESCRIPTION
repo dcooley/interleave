@@ -2,13 +2,15 @@ Package: interleave
 Type: Package
 Title: Converts Tabular Data to Interleaved Vectors
 Version: 0.1.0
-Date: 2020-10-12
+Date: 2020-10-21
 Authors@R: c(
-        person("David", "Coole", email = "david.cooley.au@gmail.com", role = c("aut", "cre")), 
+        person("David", "Cooley", email = "david.cooley.au@gmail.com", role = c("aut", "cre")), 
         person("Mapbox", role = "cph", comment = "author of header library earcut.hpp")
         )
 Description: Converts matrices and lists of matrices into a single vector by interleaving 
-    the values in each column.
+    their values. That is, each element of the result vector is filled from the input 
+    matrices one row at a time. This is the same as transposing a matrix, then removing the 
+    dimension attribute, but is designed to operate on matrices in nested list structures.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
