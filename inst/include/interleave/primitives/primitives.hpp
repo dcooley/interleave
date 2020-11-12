@@ -234,16 +234,26 @@ namespace primitives {
 
     }
 
+    Rcpp::NumericVector coordinates = interleave::utils::unlist_list( res_coordinates );
+
+
+    // issue 7
+    // making the start indices actually the start of each geometry, not each triangle
+    Rcpp::IntegerVector start_indices( geometry_coordinates.length() );
+    start_indices[0] = 0;
+    for( R_xlen_t i = 1; i < geometry_coordinates.length(); ++i ) {
+      start_indices[ i ] = geometry_coordinates[ i - 1 ] + start_indices[ i - 1 ];
+    }
+
     // start_indices: "the index in the coordinate vector where each geometry starts,
     // divided by the stride"
     // - and each geometry is 3 sets of coordinates
     // we get the start_indices after ear-cutting, as they are the starts of the triangles
-    Rcpp::NumericVector coordinates = interleave::utils::unlist_list( res_coordinates );
-    R_xlen_t n_start_indices = coordinates.length() / stride;
-    Rcpp::IntegerVector start_indices( n_start_indices );
-    for( i = 0; i < n_start_indices; ++i ) {
-      start_indices[ i ] = i * 3;
-    }
+    // R_xlen_t n_start_indices = coordinates.length() / stride;
+    // Rcpp::IntegerVector start_indices( n_start_indices );
+    // for( i = 0; i < n_start_indices; ++i ) {
+    //   start_indices[ i ] = i * 3;
+    // }
 
     return Rcpp::List::create(
       Rcpp::_["coordinates"] = coordinates,
