@@ -21,7 +21,11 @@ namespace primitives {
   // for LINEs, each sfg will be interleaved, and the start indices will
   // be the number of coordinates in each input matrix
   //
-  inline SEXP interleave_primitive( SEXP& obj, int primitive_type ) {
+  inline SEXP interleave_primitive(
+      SEXP& obj,
+      int primitive_type
+    ) {
+
     if( !Rf_isNewList( obj ) ) {
       Rcpp::stop("interleave - expecting a list");
     }
