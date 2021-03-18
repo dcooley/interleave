@@ -94,6 +94,8 @@ namespace primitives {
     );
   }
 
+  // There aren't any error checks in the subset_vector function;
+  // it assumes the inputs are sanitized
   template< int RTYPE >
   inline Rcpp::Vector< RTYPE > subset_vector(
     Rcpp::Vector< RTYPE >& v,
@@ -128,7 +130,7 @@ namespace primitives {
   }
 
   // List properties will be a list of vectors, where each vector is the same length
-  // and it is equal to the number of rows
+  // as the number of coordinates in the geometry
   inline SEXP interleave_triangle(
       SEXP& obj,
       Rcpp::List list_properties
@@ -148,6 +150,17 @@ namespace primitives {
     R_xlen_t n = lst.length();
     R_xlen_t i, j;
     int stride;
+
+    R_xlen_t n_input_coordinates; // initialise in case we need it.
+
+    if( shuffle_properties ) {
+      // Need to validate the property vectors have the same number of values
+      // as the number of coordinates in the associated geometries
+      Rcpp::List dimension = geometries::coordinates::geometry_dimensions( obj );
+      Rcpp::IntegerMatrix dims = dimension[ "dimensions" ];
+      Rcpp::IntegerVector end_coordinates = dims( Rcpp::_, 1 );
+      n_input_coordinates = end_coordinates[ dims.nrow() - 1 ] + 1;
+    }
 
     Rcpp::List res_coordinates( n );
     Rcpp::List res_indices( n );
@@ -170,10 +183,11 @@ namespace primitives {
       // POLYGONs - list[[ mat1, mat2 ]]
       // and NOT  MULTIPOLYGONs - list[[ list[[ mat1, mat2 ]], list[[ mat3 ]] ]]
       // so each iteration can only use list[[ mat1, ..., matn ]] structures
-      //
 
       Rcpp::List poly = lst[ i ];
+
       Rcpp::List lst_coords = interleave::earcut::earcut( poly );
+
       Rcpp::NumericVector nv = lst_coords["coordinates"];
       Rcpp::IntegerVector iv = lst_coords["indices"];
 
@@ -185,16 +199,13 @@ namespace primitives {
         Rcpp::stop("interleave - polygons have different strides");
       }
 
-      R_xlen_t n_coords = iv.length(); // nv.length() / this_stride;
+      R_xlen_t n_coords = iv.length();
 
-     // R_xlen_t n_indices = n_coords / 3; // because each triangle has 3 coordinates
       geometry_coordinates[ i ] = n_coords;
-
       res_coordinates[ i ] = nv;
 
-      //if( shuffle_properties ) {
-        // I'm making it always return 'input_indices', regardless if there are
-        // properties or not
+      // I'm making it always return 'input_indices', regardless if there are
+      // properties or not
 
       // -- can't use the 'max_index' because I can't guarantee the max index is used in a
       // -- closed polygon (as opposed to the 0th indexed element)
@@ -209,37 +220,29 @@ namespace primitives {
       total_rows = total_rows + n_row;
 
       res_indices[ i ] = origin_index;  // add the index of the position of the geometry
-      //}
 
       total_coordinates = total_coordinates + n_coords;
     }
-
 
     input_indices = interleave::utils::unlist_list( res_indices ); // can't unlist_list this if it's NULL
 
     if( shuffle_properties ) {
       property_indexes = Rcpp::as< Rcpp::IntegerVector >( input_indices );
-    }
-
-    // Shuffling properties
-    if( shuffle_properties ) {
-      // we can unlist all the input properties, then use the `input_index` + `geometry_index`
-      // to give the correct row
-      // but how should it be returned?
-      // as a 'properties' object?
 
       for( i = 0; i < n_properties; ++i ) {
         // each property will be a list of vectors
         Rcpp::List this_property = properties[ i ];
         SEXP p = interleave::utils::unlist_list( this_property );
 
+        if( Rf_length( p ) != n_input_coordinates ) {
+          Rcpp::stop("interleave - list-column properties must have the same number of elements as each geometry they belong to");
+        }
+
         res_properties[ i ] = subset_vector( p, property_indexes );
       }
-
     }
 
     Rcpp::NumericVector coordinates = interleave::utils::unlist_list( res_coordinates );
-
 
     // issue 7
     // making the start indices actually the start of each geometry, not each triangle

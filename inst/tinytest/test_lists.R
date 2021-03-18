@@ -37,6 +37,8 @@ expect_error( interleave:::.test_unlist_list( 1:4 ), err )
 expect_error( interleave:::.test_unlist_list( matrix(1:4, ncol = 2) ), err)
 expect_error( interleave:::.test_unlist_list( data.frame( x = 1:4 ) ), err )
 
+expect_equal( interleave:::.test_unlist_list( list(1:4) ), c(1:4) )
+
 l <- list(
   1:10
   , list(

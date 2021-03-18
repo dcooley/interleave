@@ -168,10 +168,15 @@ expect_true(
   ( length(res$coordinates) / res$stride ) == length( res$properties[[1]] )
 )
 
-res <- interleave:::rcpp_interleave_triangle( sf$geometry, sf[, c("prop2"), drop = FALSE ] )
-res <- interleave:::rcpp_interleave_triangle( sf$geometry, sf[, c("prop","prop2") ] )
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf[[ c("prop2") ]] ) )
+expect_equal( c(p2, p1)[ res$input_index + 1 ], res$properties[[1]] )
+
+## Multiple list-columns
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf[[ c("prop" ) ]], sf[[ c("prop2") ]] ) )
 
 expect_equal( c(p1,p2)[ res$input_index + 1 ], res$properties[[1]] )
+expect_equal( c(p2,p1)[ res$input_index + 1 ], res$properties[[2]] )
+
 
 ## input object is not updated by-reference
 expect_equal( p[[1]], letters[1:5] )
@@ -191,13 +196,35 @@ p2 <- letters[5:1]
 sf <- sfheaders::sf_polygon( df, polygon_id = "id")
 sf$val <- list(p1,p2)
 
-
 res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
 ## properties need to be in a list to reflect the columns of a data.frame
 
 expect_equal(
   res$properties[[1]]
   , c(p1,p2)[ res$input_index + 1 ]
+)
+
+### Do properties need to be the same nesting as the goemtry
+## i.e. list[[ proerty1, property2 ]] for a polygon with a hole
+
+df <- data.frame(
+  poly_id = c(1,1,1,1,1,1,1,1,1,1)
+  , line_id = c(1,1,1,1,1,2,2,2,2,2)
+  , x = c(0,0,1,1,0, 2,2,3,3,2)
+  , y = c(0,1,1,0,0, 2,3,3,2,2)
+)
+
+p1 <- letters[1:5]
+p2 <- letters[5:1]
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "poly_id", linestring_id = "line_id")
+sf$val <- list( list(p1,p2) )
+
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
+
+expect_equal(
+  res$properties[[1]]
+  , c(p1, p2)[ res$input_index + 1 ]
 )
 
 ## Testing if the properties have different lengths
@@ -213,7 +240,62 @@ p2 <- letters[4:1]
 sf <- sfheaders::sf_polygon( df, polygon_id = "id")
 sf$val <- list(p1,p2)
 
-expect_error( interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) ), "index error" )
+expect_error(
+  interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
+  , "interleave - list-column properties must have the same number of elements as each geometry they belong to"
+  )
+
+
+## Properties the same length as number of coordinates
+p1 <- letters[1:5]
+p2 <- letters[5:1]
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "id")
+sf$val <- list(p1,p2)
+
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
+
+expect_equal(
+  res$properties[[1]]
+  , c(p1, p2)[ res$input_index + 1 ]
+)
+
+## length-1 vectors used as properties, and specified as a list-column
+p1 <- letters[1]
+p2 <- letters[5]
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "id")
+sf$val <- list(p1,p2)
+
+expect_error(
+  interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
+  , "interleave - list-column properties must have the same number of elements as each geometry they belong to"
+)
+
+## Errors if list-column vectors aren't the same length as the number of coordinates in the geometry
+
+
+## different sized geometries work fine, as long as the property lenghts match the number of coordinates
+
+df <- data.frame(
+  id = c(1,1,1,1,1, 2,2,2,2,2,2)
+  , x = c(0,0,1,1,0, 2,2,3,3,4,2)
+  , y = c(0,1,1,0,0, 2,3,3,2,2,2)
+)
+
+p1 <- letters[1:5]
+p2 <- letters[6:1]  ## the 2nd geometry has 6 coordinates
+
+sf <- sfheaders::sf_polygon( df, polygon_id = "id")
+sf$val <- list(p1,p2)
+
+res <- interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
+
+expect_equal(
+  res$properties[[1]]
+  , c(p1, p2)[ res$input_index + 1 ]
+)
+
 
 
 df <- data.frame(
@@ -228,15 +310,21 @@ properties <- list(
   , y = 1:3
 )
 
-expect_error( interleave:::.test_interleave_triangle( sf$geometry, properties ), "index error" )
+expect_error(
+  interleave:::.test_interleave_triangle( sf$geometry, properties )
+  , "interleave - list-column properties must have the same number of elements as each geometry they belong to"
+  )
+
 
 l <- list(
   matrix(1:16, ncol = 2)
   , matrix(1:16, ncol = 4)
 )
 
-## TODO - better handle of this error?
-expect_error( interleave:::.test_interleave_triangle( list( l ), list() ), "upper value must be greater than lower value" )
+expect_error(
+  interleave:::.test_interleave_triangle( list( l ), list() )
+  , "interleave - there is an issue with earcutting this polygon, perhaps it isn't closed?"
+  )
 
 ## tringale with XYZ coords
 df <- data.frame(

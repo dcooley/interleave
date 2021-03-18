@@ -859,6 +859,10 @@ SEXP earcut(const Polygon& poly) {
   std::vector< double > coords = std::move( earcut.xyzcoords );
   std::vector< N > indices = std::move( earcut.indices );
 
+  if( coords.size() == 0 ) {
+    Rcpp::stop("interleave - there is an issue with earcutting this polygon, perhaps it isn't closed?");
+  }
+
   //return Rcpp::wrap( coords );
   std::size_t stride = std::move( earcut.stride );
 

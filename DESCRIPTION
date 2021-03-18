@@ -2,7 +2,7 @@ Package: interleave
 Type: Package
 Title: Converts Tabular Data to Interleaved Vectors
 Version: 0.1.1
-Date: 2020-10-21
+Date: 2021-03-18
 Authors@R: c(
         person("David", "Cooley", email = "david.cooley.au@gmail.com", role = c("aut", "cre")), 
         person("Mapbox", role = "cph", comment = "author of header library earcut.hpp")
@@ -19,7 +19,6 @@ LinkingTo:
     geometries,
     Rcpp
 Imports: 
-    geometries,
     Rcpp
 Suggests:
     covr,
