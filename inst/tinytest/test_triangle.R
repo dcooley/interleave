@@ -240,6 +240,7 @@ p2 <- letters[4:1]
 sf <- sfheaders::sf_polygon( df, polygon_id = "id")
 sf$val <- list(p1,p2)
 
+## Testing that there is a property for each coordinate
 expect_error(
   interleave:::rcpp_interleave_triangle( sf$geometry, list( sf$val ) )
   , "interleave - list-column properties must have the same number of elements as each geometry they belong to"
