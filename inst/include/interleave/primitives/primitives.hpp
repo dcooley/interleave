@@ -136,25 +136,29 @@ namespace primitives {
       Rcpp::List list_properties
   ) {
 
-    int x;
     interleave::utils::validate_list( obj );
+    R_xlen_t n_properties = list_properties.length();
+    bool has_properties = n_properties > 0;
 
-    Rcpp::List properties = Rcpp::clone( list_properties );
+    // declared objects for use 'if' required
+    //SEXP input_indices;
+    //Rcpp::IntegerVector property_indexes;
+    Rcpp::List res_properties( n_properties );
+    R_xlen_t n_input_coordinates;
 
     Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
 
-    bool shuffle_properties = properties.length() > 0;
-
     // I Need the index of the original coordinate so that
     // I can reference the correct row of data for each coordinate
-    R_xlen_t total_coordinates = 0;
+    //R_xlen_t total_coordinates = 0;
     R_xlen_t n = lst.length();
     R_xlen_t i, j;
     int stride;
 
-    R_xlen_t n_input_coordinates; // initialise in case we need it.
+    // Rcpp::Rcout << "lst.length " << n << std::endl;
 
-    if( shuffle_properties ) {
+    if( has_properties ) {
+      // Rcpp::Rcout << "interleave - shuffle properties 1" << std::endl;
       // Need to validate the property vectors have the same number of values
       // as the number of coordinates in the associated geometries
       Rcpp::List dimension = geometries::coordinates::geometry_dimensions( obj );
@@ -165,12 +169,6 @@ namespace primitives {
 
     Rcpp::List res_coordinates( n );
     Rcpp::List res_indices( n );
-
-    R_xlen_t n_properties = properties.length();
-    Rcpp::List res_properties( n_properties );
-
-    SEXP input_indices; // filled later if required
-    Rcpp::IntegerVector property_indexes;
 
     // stores how many coordinates make up each geometry after earcutting
     // (i.e, the sum of all the triangle coordiantes)
@@ -186,6 +184,9 @@ namespace primitives {
       // so each iteration can only use list[[ mat1, ..., matn ]] structures
 
       Rcpp::List poly = lst[ i ];
+      if(poly.length() == 0 ) {
+        Rcpp::stop("poly.length == 0");
+      }
 
       Rcpp::List lst_coords = interleave::earcut::earcut( poly );
 
@@ -218,17 +219,22 @@ namespace primitives {
       }
 
       Rcpp::IntegerVector origin_index = iv + total_rows;  // Need to add the number of coordinates in the original matrix/geometry
-      total_rows = total_rows + n_row;
+      //total_rows = total_rows + n_row;
 
       res_indices[ i ] = origin_index;  // add the index of the position of the geometry
-
-      total_coordinates = total_coordinates + n_coords;
+      //total_coordinates = total_coordinates + n_coords;
     }
 
-    input_indices = interleave::utils::unlist_list( res_indices ); // can't unlist_list this if it's NULL
+    //return res_coordinates;
+    Rcpp::IntegerVector property_indexes = interleave::utils::unlist_list( res_indices );
 
-    if( shuffle_properties ) {
-      property_indexes = Rcpp::as< Rcpp::IntegerVector >( input_indices );
+    if( has_properties ) {
+
+      // Rcpp::Rcout << "interleave - unlist_list( res_indices )" << std::endl;
+
+      // Rcpp::Rcout << "interleave - shuffle properties 2" << std::endl;
+      //property_indexes = Rcpp::as< Rcpp::IntegerVector >( input_indices );
+      Rcpp::List properties = Rcpp::clone( list_properties );
 
       for( i = 0; i < n_properties; ++i ) {
         // each property will be a list of vectors
@@ -243,16 +249,27 @@ namespace primitives {
       }
     }
 
+    // Rcpp::Rcout << "interleave - unlist_list( res_coordinates )" << std::endl;
     Rcpp::NumericVector coordinates = interleave::utils::unlist_list( res_coordinates );
+
 
     // issue 7
     // making the start indices actually the start of each geometry, not each triangle
+    // Rcpp::Rcout << "interleave - start_indices" << std::endl;
     Rcpp::IntegerVector start_indices( geometry_coordinates.length() );
+    // if( geometry_coordinates.length() == 0 ) {
+    //   Rcpp::stop("fatalError");
+    // }
     start_indices[0] = 0;
+
+    // if( geometry_coordinates.length() == 1) {
+    //   Rcpp::stop("is this an error");
+    // }
     for( R_xlen_t i = 1; i < geometry_coordinates.length(); ++i ) {
       start_indices[ i ] = geometry_coordinates[ i - 1 ] + start_indices[ i - 1 ];
     }
 
+    //return coordinates;
     // start_indices: "the index in the coordinate vector where each geometry starts,
     // divided by the stride"
     // - and each geometry is 3 sets of coordinates
@@ -263,10 +280,11 @@ namespace primitives {
     //   start_indices[ i ] = i * 3;
     // }
 
+    // Rcpp::Rcout << "interleave - creating output" << std::endl;
     return Rcpp::List::create(
       Rcpp::_["coordinates"] = coordinates,
       Rcpp::_["start_indices"] = start_indices,
-      Rcpp::_["input_index"] = input_indices,
+      Rcpp::_["input_index"] = property_indexes,
       Rcpp::_["geometry_coordinates"] = geometry_coordinates,
       Rcpp::_["properties"] = res_properties,
       Rcpp::_["stride"] = stride
