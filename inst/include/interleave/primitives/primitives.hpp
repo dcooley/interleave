@@ -136,6 +136,7 @@ namespace primitives {
       Rcpp::List list_properties
   ) {
 
+    int x;
     interleave::utils::validate_list( obj );
 
     Rcpp::List properties = Rcpp::clone( list_properties );
