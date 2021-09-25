@@ -13,8 +13,8 @@ SEXP rcpp_earcut( Rcpp::List& polygon ) {
 
 
 // [[Rcpp::export]]
-SEXP rcpp_interleave( SEXP& obj ) {
-  return interleave::interleave( obj );
+SEXP rcpp_interleave( SEXP& obj, bool attributed = false ) {
+  return interleave::interleave( obj, attributed );
 }
 
 // [[Rcpp::export]]
@@ -47,5 +47,14 @@ SEXP rcpp_interleave_line( SEXP& lst ) {
 // [[Rcpp::export]]
 SEXP rcpp_interleave_triangle( SEXP& obj, Rcpp::List properties ) {
   return interleave::primitives::interleave_triangle( obj, properties );
+}
+
+
+// [[Rcpp::export]]
+SEXP rcpp_list_element_count( Rcpp::List lst ) {
+  R_xlen_t total_size = 0;
+  R_xlen_t n_objects = 1;
+  int existing_type = 10;
+  return interleave::utils::list_element_count(lst, total_size, n_objects, existing_type);
 }
 

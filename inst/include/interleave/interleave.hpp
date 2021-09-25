@@ -7,7 +7,7 @@
 namespace interleave {
 
 template < int RTYPE >
-inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat ) {
+inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat, bool attributed = false ) {
 
   R_xlen_t nrow = mat.nrow(), ncol = mat.ncol();
   R_xlen_t len = nrow * ncol;
@@ -18,16 +18,19 @@ inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat ) {
     if (j > len2) j -= len2;
     res[i] = mat[j];
   }
+  if( attributed ) {
+    res.attr("stride") = ncol;
+  }
   return res;
 }
 
-inline SEXP interleave( SEXP& obj ) {
+inline SEXP interleave( SEXP& obj, bool attributed = false ) {
 
   switch( TYPEOF ( obj ) ) {
     case INTSXP: {
       if( Rf_isMatrix( obj ) ) {
         Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( obj );
-        return interleave( im );
+        return interleave( im, attributed );
       } else {
         return obj; // it's already a vector
       }
@@ -35,7 +38,7 @@ inline SEXP interleave( SEXP& obj ) {
     case REALSXP: {
       if( Rf_isMatrix( obj ) ) {
         Rcpp::NumericMatrix im = Rcpp::as< Rcpp::NumericMatrix >( obj );
-        return interleave( im );
+        return interleave( im, attributed );
       } else {
         return obj; // it's already a vector
       }
@@ -52,13 +55,15 @@ inline SEXP interleave( SEXP& obj ) {
 
         for( i = 0; i < n; ++i ) {
           SEXP obj = lst[ i ];
-          res[ i ] = interleave( obj );
+          res[ i ] = interleave( obj, attributed );
         }
 
       // TODO:
       // keep track of how many rows of each matrix were interleaved
       // so we know how many coordinates were in each individual LINE (ring)
 
+
+      //return res;
       return interleave::utils::unlist_list( res );
       }
     }

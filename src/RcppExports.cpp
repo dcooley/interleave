@@ -17,13 +17,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_interleave
-SEXP rcpp_interleave(SEXP& obj);
-RcppExport SEXP _interleave_rcpp_interleave(SEXP objSEXP) {
+SEXP rcpp_interleave(SEXP& obj, bool attributed);
+RcppExport SEXP _interleave_rcpp_interleave(SEXP objSEXP, SEXP attributedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< SEXP& >::type obj(objSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_interleave(obj));
+    Rcpp::traits::input_parameter< bool >::type attributed(attributedSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_interleave(obj, attributed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -58,6 +59,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< SEXP& >::type obj(objSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type properties(propertiesSEXP);
     rcpp_result_gen = Rcpp::wrap(rcpp_interleave_triangle(obj, properties));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rcpp_list_element_count
+SEXP rcpp_list_element_count(Rcpp::List lst);
+RcppExport SEXP _interleave_rcpp_list_element_count(SEXP lstSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type lst(lstSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_list_element_count(lst));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -144,10 +156,11 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_interleave_rcpp_earcut", (DL_FUNC) &_interleave_rcpp_earcut, 1},
-    {"_interleave_rcpp_interleave", (DL_FUNC) &_interleave_rcpp_interleave, 1},
+    {"_interleave_rcpp_interleave", (DL_FUNC) &_interleave_rcpp_interleave, 2},
     {"_interleave_rcpp_interleave_point", (DL_FUNC) &_interleave_rcpp_interleave_point, 1},
     {"_interleave_rcpp_interleave_line", (DL_FUNC) &_interleave_rcpp_interleave_line, 1},
     {"_interleave_rcpp_interleave_triangle", (DL_FUNC) &_interleave_rcpp_interleave_triangle, 2},
+    {"_interleave_rcpp_list_element_count", (DL_FUNC) &_interleave_rcpp_list_element_count, 1},
     {"_interleave_test_interleave", (DL_FUNC) &_interleave_test_interleave, 1},
     {"_interleave_test_list_rows", (DL_FUNC) &_interleave_test_list_rows, 1},
     {"_interleave_test_list_element_count", (DL_FUNC) &_interleave_test_list_element_count, 1},

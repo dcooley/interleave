@@ -102,6 +102,7 @@ namespace utils {
   inline Rcpp::List list_element_count(
       SEXP obj,
       R_xlen_t& total_size,
+      R_xlen_t& n_objects,
       int& existing_type
   ) {
 
@@ -116,7 +117,7 @@ namespace utils {
       switch( TYPEOF( inner_obj ) ) {
         case VECSXP: {
           if( Rf_isNewList( inner_obj ) && !Rf_inherits( inner_obj, "data.frame" ) ) {
-            res[ i ] = list_element_count( inner_obj, total_size, existing_type );
+            res[ i ] = list_element_count( inner_obj, total_size, n_objects, existing_type );
             break;
           }
         }
@@ -126,6 +127,7 @@ namespace utils {
           existing_type = vector_type( new_type, existing_type );
           res[ i ] = n_elements;
           total_size += n_elements;
+          n_objects += 1;
         }
       }
     }
@@ -187,8 +189,14 @@ namespace utils {
       SEXP obj,
       const Rcpp::List& lst_sizes,
       Rcpp::Vector< RTYPE >& values,
-      int& list_position
+      int& list_position,
+      int& attr_position,
+      Rcpp::IntegerVector& stride_attr,
+      Rcpp::IntegerVector& index_attr
   ) {
+
+    Rcpp::Rcout << "lst_position: " << list_position << std::endl;
+    Rcpp::Rcout << "attr_position: " << attr_position << std::endl;
 
     validate_list( obj );
     Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
@@ -198,23 +206,40 @@ namespace utils {
     R_xlen_t n = lst.size();
     Rcpp::List res( n );
     R_xlen_t i;
+
     for( i = 0; i < n; ++i ) {
       switch( TYPEOF( lst[ i ] ) ) {
       case VECSXP: {
-        unlist_list< RTYPE >( lst[ i ], lst_sizes[ i ], values, list_position );
+        unlist_list< RTYPE >( lst[ i ], lst_sizes[ i ], values, list_position, attr_position, stride_attr, index_attr );
         break;
       }
       default: {
         Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
         int end_position = list_position + n_elements[0] - 1;
         Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
+
+        index_attr[ attr_position ] = 1;
         values[ elements ] = Rcpp::as< Rcpp::Vector< RTYPE > >( lst[ i ] );
 
+        attr_position += 1;
         list_position = end_position + 1;
+
         break;
       }
       }
     }
+  }
+
+  template <int RTYPE>
+  inline void add_attributes(
+      Rcpp::Vector< RTYPE >& v,
+      Rcpp::IntegerVector stride_attr,
+      Rcpp::IntegerVector index_attr
+  ) {
+
+    v.attr("stride") = stride_attr;
+    v.attr("index") = index_attr;
+
   }
 
   /*
@@ -230,24 +255,33 @@ namespace utils {
     Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
 
     R_xlen_t total_size = 0;
+    R_xlen_t n_objects = 1;
     int existing_type = 10;
     int position = 0;
-    Rcpp::List lst_sizes = list_element_count( lst, total_size, existing_type );
+    int attr_position = 0;
+    Rcpp::List lst_sizes = list_element_count( lst, total_size, n_objects, existing_type );
+
+    //
+    Rcpp::IntegerVector stride_attr( n_objects );
+    Rcpp::IntegerVector index_attr( n_objects );
 
     switch( existing_type ) {
       case LGLSXP: {
         Rcpp::Vector< LGLSXP > v( total_size );
-        unlist_list< LGLSXP >( lst, lst_sizes, v, position );
+        unlist_list< LGLSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
+        add_attributes( v, stride_attr, index_attr);
         return v;
       }
       case INTSXP: {
         Rcpp::Vector< INTSXP > v( total_size );
-        unlist_list< INTSXP >( lst, lst_sizes, v, position );
+        unlist_list< INTSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
+        add_attributes( v, stride_attr, index_attr);
         return v;
       }
       case REALSXP: {
         Rcpp::Vector< REALSXP > v( total_size );
-        unlist_list< REALSXP >( lst, lst_sizes, v, position );
+        unlist_list< REALSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
+        add_attributes( v, stride_attr, index_attr);
         return v;
       }
       case VECSXP: {
@@ -255,14 +289,14 @@ namespace utils {
       }
       default: {
         Rcpp::Vector< STRSXP > v( total_size );
-        unlist_list< STRSXP >( lst, lst_sizes, v, position );
+        unlist_list< STRSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
+        add_attributes( v, stride_attr, index_attr);
         return v;
       }
     }
 
     Rcpp::stop("interleave - couldn't unlist this object");
     return lst; // #nocov - never reaches
-
   }
 
 } // utils

@@ -5,8 +5,8 @@ rcpp_earcut <- function(polygon) {
     .Call(`_interleave_rcpp_earcut`, polygon)
 }
 
-rcpp_interleave <- function(obj) {
-    .Call(`_interleave_rcpp_interleave`, obj)
+rcpp_interleave <- function(obj, attributed = FALSE) {
+    .Call(`_interleave_rcpp_interleave`, obj, attributed)
 }
 
 rcpp_interleave_point <- function(lst) {
@@ -19,6 +19,10 @@ rcpp_interleave_line <- function(lst) {
 
 rcpp_interleave_triangle <- function(obj, properties) {
     .Call(`_interleave_rcpp_interleave_triangle`, obj, properties)
+}
+
+rcpp_list_element_count <- function(lst) {
+    .Call(`_interleave_rcpp_list_element_count`, lst)
 }
 
 .test_interleave <- function(obj) {

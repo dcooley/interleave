@@ -18,8 +18,9 @@ SEXP test_list_rows( SEXP obj ) {
 // [[Rcpp::export(.test_list_element_count)]]
 SEXP test_list_element_count( SEXP obj ) {
   R_xlen_t total_size = 0;
+  R_xlen_t n_objects = 1;
   int existing_type = 10;  // start with LGLSXP
-  return interleave::utils::list_element_count( obj, total_size, existing_type );
+  return interleave::utils::list_element_count( obj, total_size, n_objects, existing_type );
 }
 
 // [[Rcpp::export(.test_unlist_list)]]
