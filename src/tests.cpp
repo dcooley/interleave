@@ -6,7 +6,8 @@ using namespace Rcpp;
 
 // [[Rcpp::export(.test_interleave)]]
 SEXP test_interleave( SEXP obj ) {
-  return interleave::interleave( obj );
+  int index = 0;
+  return interleave::interleave( obj, index );
 }
 
 // [[Rcpp::export(.test_list_rows)]]

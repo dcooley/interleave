@@ -127,7 +127,8 @@ namespace utils {
           existing_type = vector_type( new_type, existing_type );
           res[ i ] = n_elements;
           total_size += n_elements;
-          n_objects += 1;
+          n_objects = n_objects + 1;
+          break;
         }
       }
     }
@@ -195,8 +196,8 @@ namespace utils {
       Rcpp::IntegerVector& index_attr
   ) {
 
-    Rcpp::Rcout << "lst_position: " << list_position << std::endl;
-    Rcpp::Rcout << "attr_position: " << attr_position << std::endl;
+    // Rcpp::Rcout << "lst_position: " << list_position << std::endl;
+    // Rcpp::Rcout << "attr_position: " << attr_position << std::endl;
 
     validate_list( obj );
     Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
@@ -204,6 +205,7 @@ namespace utils {
     // - iterate through original list
     // - extract each element and insert into 'values'
     R_xlen_t n = lst.size();
+    // Rcpp::Rcout << "n: " << n << std::endl;
     Rcpp::List res( n );
     R_xlen_t i;
 
@@ -214,14 +216,19 @@ namespace utils {
         break;
       }
       default: {
+
         Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
         int end_position = list_position + n_elements[0] - 1;
+
+        // Rcpp::Rcout << "list_position: " << list_position << ", end_position: " << end_position << std::endl;
+        // Rcpp::Rcout << "attr_position: " << attr_position << std::endl;
+
         Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
 
         index_attr[ attr_position ] = 1;
         values[ elements ] = Rcpp::as< Rcpp::Vector< RTYPE > >( lst[ i ] );
 
-        attr_position += 1;
+        attr_position = attr_position + 1;
         list_position = end_position + 1;
 
         break;
@@ -230,17 +237,17 @@ namespace utils {
     }
   }
 
-  template <int RTYPE>
-  inline void add_attributes(
-      Rcpp::Vector< RTYPE >& v,
-      Rcpp::IntegerVector stride_attr,
-      Rcpp::IntegerVector index_attr
-  ) {
-
-    v.attr("stride") = stride_attr;
-    v.attr("index") = index_attr;
-
-  }
+  // template <int RTYPE>
+  // inline void add_attributes(
+  //     Rcpp::Vector< RTYPE >& v,
+  //     Rcpp::IntegerVector stride_attr,
+  //     Rcpp::IntegerVector index_attr
+  // ) {
+  //
+  //   v.attr("stride") = stride_attr;
+  //   v.attr("index") = index_attr;
+  //
+  // }
 
   /*
    * Unlist list
@@ -250,7 +257,7 @@ namespace utils {
    * (matrices get coerced to vectors)
    */
   inline SEXP unlist_list( SEXP obj ) {
-
+    Rcpp::Rcout << "unlist_list()" << std::endl;
     validate_list( obj );
     Rcpp::List lst = Rcpp::as< Rcpp::List >( obj );
 
@@ -259,9 +266,14 @@ namespace utils {
     int existing_type = 10;
     int position = 0;
     int attr_position = 0;
-    Rcpp::List lst_sizes = list_element_count( lst, total_size, n_objects, existing_type );
 
+    Rcpp::List lst_sizes = list_element_count( lst, total_size, n_objects, existing_type );
+    // Rcpp::Rcout << "total_size: " << total_size << std::endl;
+    // Rcpp::Rcout << "n_objects: " << n_objects << std::endl;
     //
+
+    //Rcpp::stop("stopping");
+
     Rcpp::IntegerVector stride_attr( n_objects );
     Rcpp::IntegerVector index_attr( n_objects );
 
@@ -269,19 +281,19 @@ namespace utils {
       case LGLSXP: {
         Rcpp::Vector< LGLSXP > v( total_size );
         unlist_list< LGLSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
-        add_attributes( v, stride_attr, index_attr);
+        //add_attributes( v, stride_attr, index_attr);
         return v;
       }
       case INTSXP: {
         Rcpp::Vector< INTSXP > v( total_size );
         unlist_list< INTSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
-        add_attributes( v, stride_attr, index_attr);
+        //add_attributes( v, stride_attr, index_attr);
         return v;
       }
       case REALSXP: {
         Rcpp::Vector< REALSXP > v( total_size );
         unlist_list< REALSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
-        add_attributes( v, stride_attr, index_attr);
+        //add_attributes( v, stride_attr, index_attr);
         return v;
       }
       case VECSXP: {
@@ -290,7 +302,7 @@ namespace utils {
       default: {
         Rcpp::Vector< STRSXP > v( total_size );
         unlist_list< STRSXP >( lst, lst_sizes, v, position, attr_position, stride_attr, index_attr );
-        add_attributes( v, stride_attr, index_attr);
+        //add_attributes( v, stride_attr, index_attr);
         return v;
       }
     }

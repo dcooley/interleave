@@ -14,7 +14,8 @@ SEXP rcpp_earcut( Rcpp::List& polygon ) {
 
 // [[Rcpp::export]]
 SEXP rcpp_interleave( SEXP& obj, bool attributed = false ) {
-  return interleave::interleave( obj, attributed );
+  int index = 0;
+  return interleave::interleave( obj, index, attributed );
 }
 
 // [[Rcpp::export]]

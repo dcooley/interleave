@@ -7,7 +7,7 @@
 namespace interleave {
 
 template < int RTYPE >
-inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat, bool attributed = false ) {
+inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat, int& index, bool attributed = false ) {
 
   R_xlen_t nrow = mat.nrow(), ncol = mat.ncol();
   R_xlen_t len = nrow * ncol;
@@ -18,19 +18,21 @@ inline SEXP interleave( Rcpp::Matrix< RTYPE >& mat, bool attributed = false ) {
     if (j > len2) j -= len2;
     res[i] = mat[j];
   }
-  if( attributed ) {
+  //if( attributed ) {
     res.attr("stride") = ncol;
-  }
+    res.attr("index") = index;
+  //}
+  index = index + nrow;
   return res;
 }
 
-inline SEXP interleave( SEXP& obj, bool attributed = false ) {
+inline SEXP interleave( SEXP& obj, int& index, bool attributed = false ) {
 
   switch( TYPEOF ( obj ) ) {
     case INTSXP: {
       if( Rf_isMatrix( obj ) ) {
         Rcpp::IntegerMatrix im = Rcpp::as< Rcpp::IntegerMatrix >( obj );
-        return interleave( im, attributed );
+        return interleave( im, index, attributed );
       } else {
         return obj; // it's already a vector
       }
@@ -38,7 +40,7 @@ inline SEXP interleave( SEXP& obj, bool attributed = false ) {
     case REALSXP: {
       if( Rf_isMatrix( obj ) ) {
         Rcpp::NumericMatrix im = Rcpp::as< Rcpp::NumericMatrix >( obj );
-        return interleave( im, attributed );
+        return interleave( im, index, attributed );
       } else {
         return obj; // it's already a vector
       }
@@ -54,8 +56,9 @@ inline SEXP interleave( SEXP& obj, bool attributed = false ) {
         Rcpp::List res( n ); // store interleaved vectors in the same nested-list structure
 
         for( i = 0; i < n; ++i ) {
+          // Rcpp::Rcout << "i: " << i << std::endl;
           SEXP obj = lst[ i ];
-          res[ i ] = interleave( obj, attributed );
+          res[ i ] = interleave( obj, index, attributed );
         }
 
       // TODO:
@@ -64,6 +67,7 @@ inline SEXP interleave( SEXP& obj, bool attributed = false ) {
 
 
       //return res;
+      Rcpp::Rcout << "unlisting - finalasing res " << std::endl;
       return interleave::utils::unlist_list( res );
       }
     }
@@ -72,6 +76,11 @@ inline SEXP interleave( SEXP& obj, bool attributed = false ) {
     }
   }
   return Rcpp::List::create();
+}
+
+inline SEXP interleave( SEXP& obj, bool attributed = false ) {
+  int index = 0;
+  return interleave( obj, index, attributed );
 }
 
 } // interleave
