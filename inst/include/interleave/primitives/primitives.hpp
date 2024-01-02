@@ -40,6 +40,8 @@ namespace primitives {
     R_xlen_t total_size = 0;
 
     Rcpp::List dimension = geometries::coordinates::geometry_dimensions( obj );
+
+
     Rcpp::IntegerMatrix dims = dimension[ "dimensions" ];
     R_xlen_t n_geometries = dims.nrow();  // the number of sfg objects
     int stride = dimension[ "max_dimension" ];

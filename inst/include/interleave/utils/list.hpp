@@ -206,7 +206,9 @@ namespace utils {
       }
       default: {
         Rcpp::IntegerVector n_elements = Rcpp::as< Rcpp::IntegerVector >( lst_sizes[ i ] );
+        if( n_elements[0] == 0 ) { break; }
         int end_position = list_position + n_elements[0] - 1;
+
         Rcpp::IntegerVector elements = Rcpp::seq( list_position, end_position );
         values[ elements ] = Rcpp::as< Rcpp::Vector< RTYPE > >( lst[ i ] );
 

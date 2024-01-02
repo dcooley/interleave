@@ -66,4 +66,9 @@ list_sizes <- interleave:::.test_list_element_count( l)
 expect_equal( interleave:::.test_unlist_list( list_sizes ),  unlist( list_sizes) )
 expect_error( interleave:::.test_unlist_list( l ), err ) ## errors because there are df's and matrices in list
 
+## empty list
+lst <- list(list())
+expect_equal(interleave::interleave(lst), logical())
+expect_equal(interleave::interleave(list()), interleave::interleave(list(list())))
+
 
