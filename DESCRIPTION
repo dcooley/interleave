@@ -2,7 +2,7 @@ Package: interleave
 Type: Package
 Title: Converts Tabular Data to Interleaved Vectors
 Version: 0.1.2
-Date: 2023-01-02
+Date: 2024-01-18
 Authors@R: c(
         person("David", "Cooley", email = "david.cooley.au@gmail.com", role = c("aut", "cre")), 
         person("Mapbox", role = "cph", comment = "author of header library earcut.hpp")
@@ -14,9 +14,10 @@ Description: Converts matrices and lists of matrices into a single vector by int
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
+Depends: R (>= 3.0.2)
 LinkingTo: 
-    geometries,
+    geometries (>= 0.2.4),
     Rcpp
 Imports: 
     Rcpp
@@ -24,4 +25,3 @@ Suggests:
     covr,
     sfheaders,
     tinytest
-SystemRequirements: C++11

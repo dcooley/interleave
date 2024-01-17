@@ -2,7 +2,7 @@
 [![R build
 status](https://github.com/dcooley/interleave/workflows/R-CMD-check/badge.svg)](https://github.com/dcooley/interleave/actions)
 [![Codecov test
-coverage](https://codecov.io/gh/dcooley/interleave/branch/master/graph/badge.svg)](https://codecov.io/gh/dcooley/interleave?branch=master)
+coverage](https://codecov.io/gh/dcooley/interleave/branch/master/graph/badge.svg)](https://app.codecov.io/gh/dcooley/interleave?branch=master)
 
 <img src="./man/figures/interleaving.gif" width="256px" height="256px" />
 
